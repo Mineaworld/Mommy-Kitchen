@@ -1,0 +1,37 @@
+"use client";
+
+import { useEffect } from "react";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    // Optionally log the error to an error reporting service
+    console.error(error);
+  }, [error]);
+
+  return (
+    <main className="max-w-[800px] mx-auto min-h-screen bg-surface px-4 py-8 flex flex-col justify-center">
+      <section className="p-8 text-center bg-surfaceContainer rounded-3xl shadow-sm border border-outlineVariant/20 flex flex-col items-center">
+        <div className="text-6xl mb-4 bg-surfaceContainerHighest w-24 h-24 rounded-full flex items-center justify-center shadow-sm">⚠️</div>
+        <h2 className="text-2xl font-bold text-onSurface m-0">មានបញ្ហា</h2>
+        <p className="text-onSurfaceVariant text-base font-semibold m-0 mt-3">មានអ្វីមួយខុសប្រក្រតី។ សូមព្យាយាមម្ដងទៀត។</p>
+        <p className="text-onSurfaceVariant text-sm font-medium m-0 mt-1">Something went wrong. Please try again.</p>
+        
+        <button
+          onClick={reset}
+          className="mt-8 w-full max-w-[240px] bg-primary text-onPrimary font-bold rounded-full min-h-[56px] text-lg px-6 flex items-center justify-center gap-3 transition-transform active:scale-95 shadow-[0_4px_12px_rgba(158,61,0,0.3)]"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Try Again
+        </button>
+      </section>
+    </main>
+  );
+}

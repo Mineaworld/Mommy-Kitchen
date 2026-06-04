@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Debug logs
+npm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Playwright MCP
+.playwright-mcp/
+
+# Test screenshots
+mom-app-desktop-home.png
+mom-app-mobile-home.png
