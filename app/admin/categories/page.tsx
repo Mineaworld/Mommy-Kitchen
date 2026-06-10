@@ -41,9 +41,15 @@ const AdminCategoriesPage = () => {
     <main className="mx-auto min-h-screen max-w-[800px] bg-surface pb-[100px]">
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-surface/90 px-4 backdrop-blur-md">
         <h1 className="m-0 text-xl font-bold text-onSurface">Admin Categories</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
           <Link className="inline-flex h-10 items-center justify-center rounded-full bg-surfaceContainer px-4 text-sm font-semibold text-primary transition-colors hover:bg-surfaceContainerHigh" href="/admin/recipes">
             Recipes
+          </Link>
+          <Link className="inline-flex h-10 items-center justify-center rounded-full bg-surfaceContainer px-4 text-sm font-semibold text-primary transition-colors hover:bg-surfaceContainerHigh" href="/admin/images">
+            Images
+          </Link>
+          <Link className="inline-flex h-10 items-center justify-center rounded-full bg-surfaceContainer px-4 text-sm font-semibold text-primary transition-colors hover:bg-surfaceContainerHigh" href="/admin/import">
+            Import
           </Link>
           <Link className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-bold text-onPrimary shadow-sm transition-colors hover:bg-primary/90" href="/admin/categories/new">
             + New

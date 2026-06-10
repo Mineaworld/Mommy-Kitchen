@@ -66,12 +66,18 @@ const AdminRecipesPage = () => {
     <main className="max-w-[800px] mx-auto min-h-screen bg-surface pb-[100px]">
       <header className="sticky top-0 z-10 flex items-center justify-between px-4 h-16 bg-surface/90 backdrop-blur-md">
         <h1 className="text-xl font-bold text-onSurface m-0">Admin Recipes</h1>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap justify-end">
           <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/">
             Home
           </Link>
           <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/admin/categories">
             Categories
+          </Link>
+          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/admin/images">
+            Images
+          </Link>
+          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/admin/import">
+            Import
           </Link>
           <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-bold text-onPrimary bg-primary hover:bg-primary/90 transition-colors shadow-sm" href="/admin/recipes/new">
             + New
