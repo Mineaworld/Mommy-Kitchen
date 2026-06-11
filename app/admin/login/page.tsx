@@ -46,7 +46,7 @@ const LoginPage = () => {
           <p className="text-onSurfaceVariant font-medium text-center m-0">Sign in with your admin account.</p>
           <form className="flex flex-col gap-6" onSubmit={onSubmit}>
             <div className="flex flex-col gap-2">
-              <label htmlFor="admin-email" className="font-bold text-onSurface text-base">Email</label>
+              <label htmlFor="admin-email" className="admin-label">Email</label>
               <input
                 id="admin-email"
                 name="email"
@@ -58,11 +58,11 @@ const LoginPage = () => {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 required
-                className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+                className="admin-input"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label htmlFor="admin-password" className="font-bold text-onSurface text-base">Password</label>
+              <label htmlFor="admin-password" className="admin-label">Password</label>
               <input
                 id="admin-password"
                 name="password"
@@ -72,7 +72,7 @@ const LoginPage = () => {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 required
-                className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+                className="admin-input"
               />
             </div>
             <button type="submit" className="w-full bg-primary text-onPrimary font-bold rounded-full min-h-[56px] text-lg px-4 flex items-center justify-center transition-transform active:scale-95 shadow-sm mt-2">

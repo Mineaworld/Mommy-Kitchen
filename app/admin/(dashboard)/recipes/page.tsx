@@ -63,32 +63,16 @@ const AdminRecipesPage = () => {
   };
 
   return (
-    <main className="max-w-[800px] mx-auto min-h-screen bg-surface pb-[100px]">
-      <header className="sticky top-0 z-10 flex items-center justify-between px-4 h-16 bg-surface/90 backdrop-blur-md">
-        <h1 className="text-xl font-bold text-onSurface m-0">Admin Recipes</h1>
-        <div className="flex gap-2 flex-wrap justify-end">
-          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/">
-            Home
-          </Link>
-          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/admin/categories">
-            Categories
-          </Link>
-          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/admin/images">
-            Images
-          </Link>
-          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors" href="/admin/import">
-            Import
-          </Link>
-          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-bold text-onPrimary bg-primary hover:bg-primary/90 transition-colors shadow-sm" href="/admin/recipes/new">
-            + New
-          </Link>
-        </div>
-      </header>
-      
+    <main className="max-w-[800px] w-full mx-auto min-h-screen pb-[100px]">
       <div className="px-4 py-4 grid gap-4">
-        <section className="bg-surfaceContainer px-4 py-3 rounded-2xl flex justify-between items-center shadow-sm">
-          <h2 className="text-lg font-bold text-onSurface m-0">Manage Recipes</h2>
-          <span className="bg-secondaryContainer text-onSecondaryContainer font-bold text-sm px-3 py-1 rounded-full">{recipes.length} Total</span>
+        <section className="bg-surfaceContainer px-4 py-3 rounded-2xl flex flex-wrap justify-between items-center gap-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold text-onSurface m-0">Recipes</h2>
+            <span className="bg-secondaryContainer text-onSecondaryContainer font-bold text-sm px-3 py-1 rounded-full">{recipes.length} Total</span>
+          </div>
+          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-bold text-onPrimary bg-primary hover:bg-primary/90 transition-colors shadow-sm" href="/admin/recipes/new">
+            + New Recipe
+          </Link>
         </section>
 
         {error ? (

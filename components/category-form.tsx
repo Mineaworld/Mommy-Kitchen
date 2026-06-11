@@ -130,7 +130,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
       <form className="px-4 py-4" onSubmit={onSubmit}>
         <div className="flex flex-col gap-6 rounded-2xl border border-outlineVariant/30 bg-surfaceContainerLowest p-6 shadow-sm">
           <div className="flex flex-col gap-2">
-            <label htmlFor="category-name" className="text-base font-bold text-onSurface">Khmer name</label>
+            <label htmlFor="category-name" className="admin-label">Khmer name</label>
             <input
               id="category-name"
               name="name_km"
@@ -138,12 +138,12 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
               value={payload.name_km}
               onChange={(event) => setPayload({ ...payload, name_km: event.target.value })}
               required
-              className="w-full rounded-t-lg border-b-2 border-outline bg-surfaceContainer p-3 text-base text-onSurface outline-none transition-colors focus:border-primary"
+              className="admin-input"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="category-slug" className="text-base font-bold text-onSurface">Slug</label>
+            <label htmlFor="category-slug" className="admin-label">Slug</label>
             <input
               id="category-slug"
               name="slug"
@@ -153,12 +153,12 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
               value={payload.slug}
               onChange={(event) => setPayload({ ...payload, slug: event.target.value.toLowerCase() })}
               required
-              className="w-full rounded-t-lg border-b-2 border-outline bg-surfaceContainer p-3 text-base text-onSurface outline-none transition-colors focus:border-primary"
+              className="admin-input"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="category-cover" className="text-base font-bold text-onSurface">Cover image URL</label>
+            <label htmlFor="category-cover" className="admin-label">Cover image URL</label>
             <input
               id="category-cover"
               name="cover_image_url"
@@ -168,7 +168,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
               value={payload.cover_image_url}
               onChange={(event) => setPayload({ ...payload, cover_image_url: event.target.value })}
               required
-              className="w-full rounded-t-lg border-b-2 border-outline bg-surfaceContainer p-3 text-base text-onSurface outline-none transition-colors focus:border-primary"
+              className="admin-input"
             />
             {payload.cover_image_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -177,7 +177,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="category-order" className="text-base font-bold text-onSurface">Display order</label>
+            <label htmlFor="category-order" className="admin-label">Display order</label>
             <input
               id="category-order"
               name="display_order"
@@ -186,7 +186,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
               min={0}
               value={payload.display_order}
               onChange={(event) => setPayload({ ...payload, display_order: Number(event.target.value) })}
-              className="w-full rounded-t-lg border-b-2 border-outline bg-surfaceContainer p-3 text-base text-onSurface outline-none transition-colors focus:border-primary"
+              className="admin-input"
             />
           </div>
 

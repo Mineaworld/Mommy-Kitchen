@@ -156,7 +156,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
       <form className="px-4 py-4" onSubmit={onSubmit}>
         <div className="bg-surfaceContainerLowest p-6 rounded-2xl shadow-sm border border-outlineVariant/30 flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <label htmlFor="recipe-title" className="font-bold text-onSurface text-base">Recipe title</label>
+            <label htmlFor="recipe-title" className="admin-label">Recipe title</label>
             <input
               id="recipe-title"
               name="title_km"
@@ -165,11 +165,11 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
               value={payload.title_km}
               onChange={(event) => setPayload({ ...payload, title_km: event.target.value })}
               required
-              className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+              className="admin-input"
             />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="recipe-thumbnail" className="font-bold text-onSurface text-base">Thumbnail URL</label>
+            <label htmlFor="recipe-thumbnail" className="admin-label">Thumbnail URL</label>
             <input
               id="recipe-thumbnail"
               name="thumbnail_url"
@@ -180,7 +180,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
               value={payload.thumbnail_url}
               onChange={(event) => setPayload({ ...payload, thumbnail_url: event.target.value })}
               required
-              className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+              className="admin-input"
             />
             {payload.thumbnail_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
@@ -195,7 +195,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
             ) : null}
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="recipe-category-id" className="font-bold text-onSurface text-base">Category</label>
+            <label htmlFor="recipe-category-id" className="admin-label">Category</label>
             {categories.length > 0 ? (
               <select
                 id="recipe-category-id"
@@ -203,7 +203,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
                 value={payload.category_id}
                 onChange={(event) => setPayload({ ...payload, category_id: event.target.value })}
                 required
-                className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors appearance-none"
+                className="admin-select"
               >
                 <option value="">Select a category...</option>
                 {categories.map((cat) => (
@@ -222,19 +222,19 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
                 value={payload.category_id}
                 onChange={(event) => setPayload({ ...payload, category_id: event.target.value })}
                 required
-                className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+                className="admin-input"
               />
             )}
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="recipe-meal-slot" className="font-bold text-onSurface text-base">Meal</label>
+            <label htmlFor="recipe-meal-slot" className="admin-label">Meal</label>
             <select
               id="recipe-meal-slot"
               name="meal_slot"
               value={payload.meal_slot}
               onChange={(event) => setPayload({ ...payload, meal_slot: event.target.value as MealSlot })}
               required
-              className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors appearance-none"
+              className="admin-select"
             >
               {MEAL_SLOT_VALUES.map((mealSlot) => (
                 <option key={mealSlot} value={mealSlot}>
@@ -244,7 +244,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
             </select>
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="recipe-youtube" className="font-bold text-onSurface text-base">YouTube URL</label>
+            <label htmlFor="recipe-youtube" className="admin-label">YouTube URL</label>
             <input
               id="recipe-youtube"
               name="youtube_url"
@@ -255,12 +255,12 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
               value={payload.youtube_url}
               onChange={(event) => setPayload({ ...payload, youtube_url: event.target.value })}
               required
-              className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+              className="admin-input"
             />
             <p className="text-onSurfaceVariant text-xs font-medium ml-1 mt-1">Preview ID: {videoId ?? "invalid URL"}</p>
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="recipe-duration" className="font-bold text-onSurface text-base">Duration (minutes)</label>
+            <label htmlFor="recipe-duration" className="admin-label">Duration (minutes)</label>
             <input
               id="recipe-duration"
               name="duration_minutes"
@@ -269,7 +269,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
               min={1}
               value={payload.duration_minutes ?? 1}
               onChange={(event) => setPayload({ ...payload, duration_minutes: Number(event.target.value) })}
-              className="w-full bg-surfaceContainer border-b-2 border-outline focus:border-primary rounded-t-lg p-3 text-base text-onSurface outline-none transition-colors"
+              className="admin-input"
             />
           </div>
           <label className="flex items-center gap-3 mt-2 cursor-pointer select-none">
