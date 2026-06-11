@@ -2,6 +2,18 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import imageCompression from "browser-image-compression";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type StorageImage = {
   name: string;
@@ -31,6 +43,9 @@ const AdminImagesPage = () => {
   const [error, setError] = useState("");
   const [uploads, setUploads] = useState<UploadProgress[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [deleteTargets, setDeleteTargets] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getToken = (): string | null => {
@@ -105,13 +120,35 @@ const AdminImagesPage = () => {
     setUploads(progressItems);
     setError("");
 
+    // Mark all as uploading/compressing
+    setUploads(valid.map((f) => ({ filename: f.name, status: "uploading" })));
+
+    // Compression settings: Max 100KB, max 1080p, convert to WebP
+    const options = {
+      maxSizeMB: 0.15, // Targeting ~150KB maximum
+      maxWidthOrHeight: 1080,
+      useWebWorker: true,
+      fileType: "image/webp",
+    };
+
+    const compressedFiles = await Promise.all(
+      valid.map(async (file) => {
+        try {
+          const compressedBlob = await imageCompression(file, options);
+          // Rename extension to .webp
+          const newName = file.name.replace(/\.[^/.]+$/, ".webp");
+          return new File([compressedBlob], newName, { type: "image/webp" });
+        } catch (error) {
+          console.error("Compression failed for", file.name, error);
+          return file; // fallback to original file if it fails
+        }
+      })
+    );
+
     const formData = new FormData();
-    for (const file of valid) {
+    for (const file of compressedFiles) {
       formData.append("files", file);
     }
-
-    // Mark all as uploading
-    setUploads(valid.map((f) => ({ filename: f.name, status: "uploading" })));
 
     try {
       const response = await fetch("/api/admin/images", {
@@ -175,31 +212,59 @@ const AdminImagesPage = () => {
     setIsDragOver(false);
   };
 
-  const handleDelete = async (filename: string) => {
-    const confirmed = confirm(`Delete "${filename}"? This cannot be undone.`);
-    if (!confirmed) return;
+  const toggleSelectAll = () => {
+    if (selectedImages.size === images.length && images.length > 0) {
+      setSelectedImages(new Set());
+    } else {
+      setSelectedImages(new Set(images.map((img) => img.name)));
+    }
+  };
 
+  const toggleSelectImage = (filename: string) => {
+    const newSet = new Set(selectedImages);
+    if (newSet.has(filename)) {
+      newSet.delete(filename);
+    } else {
+      newSet.add(filename);
+    }
+    setSelectedImages(newSet);
+  };
+
+  const executeDelete = async () => {
     const token = getToken();
-    if (!token) return;
+    if (!token || deleteTargets.length === 0) return;
+
+    setIsDeleting(true);
 
     try {
-      const response = await fetch("/api/admin/images", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ filename }),
-      });
+      // Delete sequentially or parallel. Sequential is safer if API doesn't support bulk.
+      for (const filename of deleteTargets) {
+        const response = await fetch("/api/admin/images", {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ filename }),
+        });
 
-      if (!response.ok) {
-        setError("Failed to delete image.");
-        return;
+        if (!response.ok) {
+          setError(`Failed to delete ${filename}.`);
+        }
       }
 
-      setImages((prev) => prev.filter((img) => img.name !== filename));
+      setImages((prev) => prev.filter((img) => !deleteTargets.includes(img.name)));
+      
+      // Remove from selected if they were deleted
+      const newSelected = new Set(selectedImages);
+      deleteTargets.forEach((t) => newSelected.delete(t));
+      setSelectedImages(newSelected);
+      
     } catch {
       setError("Network error during delete.");
+    } finally {
+      setDeleteTargets([]);
+      setIsDeleting(false);
     }
   };
 
@@ -212,33 +277,44 @@ const AdminImagesPage = () => {
   };
 
   return (
-    <main className="max-w-[800px] mx-auto min-h-screen bg-surface pb-[100px]">
-      {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between px-4 h-16 bg-surface/90 backdrop-blur-md">
-        <h1 className="text-xl font-bold text-onSurface m-0">Image Manager</h1>
-        <div className="flex gap-2">
-          <Link
-            className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors"
-            href="/admin/recipes"
-          >
-            Recipes
-          </Link>
-          <Link
-            className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-semibold text-primary bg-surfaceContainer hover:bg-surfaceContainerHigh transition-colors"
-            href="/admin/import"
-          >
-            Import
-          </Link>
-        </div>
-      </header>
-
+    <main className="max-w-[800px] w-full mx-auto min-h-screen pb-[100px]">
       <div className="px-4 py-4 grid gap-4">
         {/* Stats */}
         <section className="bg-surfaceContainer px-4 py-3 rounded-2xl flex justify-between items-center shadow-sm">
-          <h2 className="text-lg font-bold text-onSurface m-0">Uploaded Images</h2>
-          <span className="bg-secondaryContainer text-onSecondaryContainer font-bold text-sm px-3 py-1 rounded-full">
-            {images.length} Total
-          </span>
+          <div className="flex items-center gap-4">
+            <h2 className="text-lg font-bold text-onSurface m-0">Image Manager</h2>
+            <span className="bg-secondaryContainer text-onSecondaryContainer font-bold text-sm px-3 py-1 rounded-full">
+              {images.length} Total
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {images.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="select-all"
+                  checked={images.length > 0 && selectedImages.size === images.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+                <label
+                  htmlFor="select-all"
+                  className="text-sm font-semibold text-onSurface cursor-pointer select-none"
+                >
+                  Select All
+                </label>
+              </div>
+            )}
+            
+            {selectedImages.size > 0 && (
+              <button
+                type="button"
+                onClick={() => setDeleteTargets(Array.from(selectedImages))}
+                className="bg-error text-onError px-3 py-1.5 rounded-xl text-sm font-bold shadow-sm hover:opacity-90 transition-opacity"
+              >
+                Delete Selected ({selectedImages.size})
+              </button>
+            )}
+          </div>
         </section>
 
         {/* Error Banner */}
@@ -368,9 +444,19 @@ const AdminImagesPage = () => {
           <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {images.map((image) => (
               <div
-                className="bg-surfaceContainerLowest rounded-2xl overflow-hidden shadow-sm border border-outlineVariant/30 flex flex-col"
+                className={`bg-surfaceContainerLowest rounded-2xl overflow-hidden shadow-sm border flex flex-col relative transition-all ${
+                  selectedImages.has(image.name) ? "border-primary ring-2 ring-primary/20" : "border-outlineVariant/30"
+                }`}
                 key={image.name}
               >
+                {/* Selection Checkbox */}
+                <div className="absolute top-2 left-2 z-10 bg-surfaceContainerLowest/80 backdrop-blur-sm rounded-md p-1 shadow-sm">
+                  <Checkbox
+                    checked={selectedImages.has(image.name)}
+                    onCheckedChange={() => toggleSelectImage(image.name)}
+                  />
+                </div>
+
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.public_url}
@@ -389,7 +475,7 @@ const AdminImagesPage = () => {
                   <p className="text-xs text-onSurfaceVariant m-0">{formatBytes(image.size)}</p>
                   <button
                     type="button"
-                    onClick={() => void handleDelete(image.name)}
+                    onClick={() => setDeleteTargets([image.name])}
                     className="w-full text-center font-bold text-error bg-errorContainer hover:bg-errorContainer/80 px-3 py-2 rounded-xl transition-colors text-sm mt-auto"
                   >
                     Delete
@@ -400,6 +486,34 @@ const AdminImagesPage = () => {
           </section>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteTargets.length > 0} onOpenChange={(open) => !open && !isDeleting && setDeleteTargets([])}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. You are about to permanently delete{" "}
+              <strong className="text-onSurface">{deleteTargets.length}</strong> image
+              {deleteTargets.length > 1 ? "s" : ""}. This will remove the file
+              {deleteTargets.length > 1 ? "s" : ""} from your Supabase storage bucket.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void executeDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-error text-onError hover:bg-error/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 };
