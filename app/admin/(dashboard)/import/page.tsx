@@ -241,8 +241,8 @@ const AdminImportPage = () => {
   };
 
   return (
-    <main className="max-w-[800px] w-full mx-auto min-h-screen pb-[100px]">
-      <div className="px-4 py-4 grid gap-4">
+    <main className="w-full mx-auto min-h-screen pb-[100px]">
+      <div className="px-4 lg:px-6 py-4 lg:py-6 grid gap-4">
         {/* Title */}
         <section className="bg-surfaceContainer px-4 py-3 rounded-2xl shadow-sm">
           <h2 className="text-lg font-bold text-onSurface m-0">Bulk Import</h2>

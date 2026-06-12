@@ -278,8 +278,8 @@ const AdminImagesPage = () => {
   };
 
   return (
-    <main className="max-w-[800px] w-full mx-auto min-h-screen pb-[100px]">
-      <div className="px-4 py-4 grid gap-4">
+    <main className="w-full mx-auto min-h-screen pb-[100px]">
+      <div className="px-4 lg:px-6 py-4 lg:py-6 grid gap-4">
         {/* Stats */}
         <section className="bg-surfaceContainer px-4 py-3 rounded-2xl flex justify-between items-center shadow-sm">
           <div className="flex items-center gap-4">
@@ -424,7 +424,7 @@ const AdminImagesPage = () => {
 
         {/* Loading Skeleton */}
         {loading ? (
-          <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div className="bg-surfaceContainerLow rounded-2xl p-3 shadow-sm" key={i}>
                 <div className="w-full aspect-square bg-surfaceContainerHighest rounded-xl mb-2 animate-pulse" />
@@ -442,7 +442,7 @@ const AdminImagesPage = () => {
           </section>
         ) : (
           /* Image Grid */
-          <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {images.map((image) => (
               <div
                 className={`bg-surfaceContainerLowest rounded-2xl overflow-hidden shadow-sm border flex flex-col relative transition-all ${
