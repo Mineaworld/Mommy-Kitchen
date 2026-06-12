@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import { Checkbox } from "@/components/ui/checkbox";
+import { getAdminToken } from "@/lib/admin-auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,7 +50,7 @@ const AdminImagesPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getToken = (): string | null => {
-    const token = localStorage.getItem("admin_access_token");
+    const token = getAdminToken();
     if (!token) {
       setError("Please log in first.");
       return null;
@@ -319,7 +320,7 @@ const AdminImagesPage = () => {
 
         {/* Error Banner */}
         {error ? (
-          <section className="bg-errorContainer p-4 rounded-2xl shadow-sm">
+          <section className="bg-errorContainer p-4 rounded-2xl shadow-sm" role="alert">
             <p className="text-error font-bold m-0 whitespace-pre-line">{error}</p>
             <button
               type="button"
