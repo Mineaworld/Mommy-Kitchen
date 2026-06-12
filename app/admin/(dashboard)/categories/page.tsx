@@ -1,20 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/types";
+import { getAdminToken } from "@/lib/admin-auth";
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const load = async () => {
-      const token = localStorage.getItem("admin_access_token");
+      const token = getAdminToken();
       if (!token) {
-        setError("Please log in first.");
-        setLoading(false);
+        router.push("/admin/login");
         return;
       }
 
@@ -35,11 +37,11 @@ const AdminCategoriesPage = () => {
       }
     };
     void load();
-  }, []);
+  }, [router]);
 
   return (
-    <main className="max-w-[800px] w-full mx-auto min-h-screen pb-[100px]">
-      <div className="grid gap-4 px-4 py-4">
+    <main className="w-full mx-auto min-h-screen pb-[100px]">
+      <div className="grid gap-4 px-4 lg:px-6 py-4 lg:py-6">
         <section className="bg-surfaceContainer px-4 py-3 rounded-2xl flex flex-wrap justify-between items-center gap-4 shadow-sm">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-bold text-onSurface m-0">Categories</h2>
@@ -51,26 +53,26 @@ const AdminCategoriesPage = () => {
         </section>
 
         {error ? (
-          <section className="rounded-2xl bg-errorContainer p-4 shadow-sm">
+          <section className="rounded-2xl bg-errorContainer p-4 shadow-sm" role="alert">
             <p className="m-0 font-bold text-error">{error}</p>
           </section>
         ) : null}
 
         {loading ? (
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {[1, 2, 3, 4].map((i) => (
               <div className="rounded-2xl bg-surfaceContainerLow p-4 shadow-sm" key={i}>
-                <div className="mb-3 h-[150px] w-full animate-pulse rounded-xl bg-surfaceContainerHighest" />
+                <div className="mb-3 aspect-square w-full animate-pulse rounded-xl bg-surfaceContainerHighest" />
                 <div className="h-6 w-3/4 animate-pulse rounded-md bg-surfaceContainerHighest" />
               </div>
             ))}
           </section>
         ) : (
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {categories.map((category) => (
               <article className="overflow-hidden rounded-2xl border border-outlineVariant/30 bg-surfaceContainerLowest shadow-sm" key={category.id}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={category.cover_image_url} alt={category.name_km} className="h-[150px] w-full object-cover" />
+                <img src={category.cover_image_url} alt={category.name_km} className="aspect-square w-full object-cover bg-surfaceContainerHighest" />
                 <div className="grid gap-3 p-4">
                   <div>
                     <h3 className="mb-2 text-xl font-bold text-onSurface">{category.name_km}</h3>

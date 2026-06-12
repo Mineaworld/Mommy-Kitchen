@@ -1,9 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Category, CategoryInput } from "@/lib/types";
+import { getAdminToken } from "@/lib/admin-auth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type CategoryFormProps = {
   mode: "create" | "edit";
@@ -22,6 +34,9 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
   const router = useRouter();
   const [payload, setPayload] = useState<CategoryInput>(defaultPayload);
   const [status, setStatus] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -29,9 +44,9 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
         return;
       }
 
-      const token = localStorage.getItem("admin_access_token");
+      const token = getAdminToken();
       if (!token) {
-        setStatus("Please log in first.");
+        router.push("/admin/login");
         return;
       }
 
@@ -62,11 +77,13 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitting(true);
     setStatus("Saving...");
 
-    const token = localStorage.getItem("admin_access_token");
+    const token = getAdminToken();
     if (!token) {
       setStatus("Please log in first.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -85,6 +102,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
     if (!response.ok) {
       const json = (await response.json()) as { error?: { message?: string } };
       setStatus(json.error?.message ?? "Unable to save.");
+      setIsSubmitting(false);
       return;
     }
 
@@ -95,40 +113,49 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
 
   const handleDelete = async () => {
     if (!categoryId) return;
-    const confirmed = confirm("Delete this category? If it has recipes, it will be deactivated instead.");
-    if (!confirmed) return;
 
-    const token = localStorage.getItem("admin_access_token");
+    setIsDeleting(true);
+    const token = getAdminToken();
     if (!token) {
-      setStatus("Please log in first.");
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+      router.push("/admin/login");
       return;
     }
 
-    const response = await fetch(`/api/admin/categories/${categoryId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      const response = await fetch(`/api/admin/categories/${categoryId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    if (!response.ok) {
-      setStatus("Failed to delete category.");
-      return;
+      if (!response.ok) {
+        setStatus("Failed to delete category.");
+        return;
+      }
+
+      router.push("/admin/categories");
+      router.refresh();
+    } catch {
+      setStatus("Network error during delete.");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
-
-    router.push("/admin/categories");
-    router.refresh();
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-[800px] bg-surface pb-[100px]">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-surface/90 px-4 backdrop-blur-md">
-        <h1 className="m-0 text-xl font-bold text-onSurface">{mode === "create" ? "New Category" : "Edit Category"}</h1>
-        <Link className="inline-flex h-10 items-center justify-center rounded-full bg-surfaceContainer px-4 text-sm font-semibold text-primary transition-colors hover:bg-surfaceContainerHigh" href="/admin/categories">
-          Back
+    <div className="mx-auto min-h-screen bg-surface pb-[100px]">
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-3 bg-surface/90 px-6 backdrop-blur-md">
+        <Link className="inline-flex h-10 w-10 items-center justify-center rounded-full text-onSurfaceVariant hover:text-onSurface hover:bg-surfaceContainerHigh transition-colors" href="/admin/categories" aria-label="Back">
+          <ArrowLeft size={20} />
         </Link>
+        <h1 className="m-0 text-xl font-bold text-onSurface">{mode === "create" ? "New Category" : "Edit Category"}</h1>
       </header>
 
-      <form className="px-4 py-4" onSubmit={onSubmit}>
-        <div className="flex flex-col gap-6 rounded-2xl border border-outlineVariant/30 bg-surfaceContainerLowest p-6 shadow-sm">
+      <form className="px-6 py-6" onSubmit={onSubmit}>
+        <div className="flex flex-col gap-8 rounded-2xl border border-outlineVariant/30 bg-surfaceContainerLowest p-6 lg:p-8 shadow-sm">
+          {/* Name — full width */}
           <div className="flex flex-col gap-2">
             <label htmlFor="category-name" className="admin-label">Khmer name</label>
             <input
@@ -142,21 +169,39 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
             />
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="category-slug" className="admin-label">Slug</label>
-            <input
-              id="category-slug"
-              name="slug"
-              autoComplete="off"
-              spellCheck={false}
-              placeholder="soup"
-              value={payload.slug}
-              onChange={(event) => setPayload({ ...payload, slug: event.target.value.toLowerCase() })}
-              required
-              className="admin-input"
-            />
+          {/* 2-column grid for metadata fields on desktop */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="category-slug" className="admin-label">Slug</label>
+              <input
+                id="category-slug"
+                name="slug"
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="soup"
+                value={payload.slug}
+                onChange={(event) => setPayload({ ...payload, slug: event.target.value.toLowerCase() })}
+                required
+                className="admin-input"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="category-order" className="admin-label">Display order</label>
+              <input
+                id="category-order"
+                name="display_order"
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={payload.display_order}
+                onChange={(event) => setPayload({ ...payload, display_order: Number(event.target.value) })}
+                className="admin-input"
+              />
+            </div>
           </div>
 
+          {/* Cover image — full width with constrained preview */}
           <div className="flex flex-col gap-2">
             <label htmlFor="category-cover" className="admin-label">Cover image URL</label>
             <input
@@ -172,25 +217,12 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
             />
             {payload.cover_image_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={payload.cover_image_url} alt="Category preview" className="mt-2 h-[200px] w-full rounded-xl border border-outlineVariant/30 object-cover" />
+              <img src={payload.cover_image_url} alt="Category preview" className="mt-2 h-[200px] lg:h-[240px] w-full lg:max-w-md rounded-xl border border-outlineVariant/30 object-cover" />
             ) : null}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label htmlFor="category-order" className="admin-label">Display order</label>
-            <input
-              id="category-order"
-              name="display_order"
-              type="number"
-              inputMode="numeric"
-              min={0}
-              value={payload.display_order}
-              onChange={(event) => setPayload({ ...payload, display_order: Number(event.target.value) })}
-              className="admin-input"
-            />
-          </div>
-
-          <label className="mt-2 flex cursor-pointer select-none items-center gap-3">
+          {/* Active toggle */}
+          <label className="flex cursor-pointer select-none items-center gap-3">
             <div className="relative">
               <input
                 type="checkbox"
@@ -204,24 +236,50 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
             <span className="font-bold text-onSurface">Active</span>
           </label>
 
-          <div className="mt-4 flex flex-col gap-3">
-            <button type="submit" className="flex min-h-[56px] w-full items-center justify-center rounded-full bg-primary px-4 text-lg font-bold text-onPrimary shadow-sm transition-transform active:scale-95">
-              {mode === "create" ? "Create Category" : "Save Changes"}
+          {/* Action buttons — side by side on desktop */}
+          <div className="mt-2 flex flex-col lg:flex-row gap-3">
+            <button type="submit" disabled={isSubmitting} className="flex min-h-[48px] lg:min-h-[44px] w-full lg:w-auto lg:min-w-[200px] items-center justify-center rounded-full bg-primary px-6 text-base font-bold text-onPrimary shadow-sm transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+              {isSubmitting ? "Saving..." : mode === "create" ? "Create Category" : "Save Changes"}
             </button>
             {mode === "edit" ? (
-              <button type="button" className="flex min-h-[56px] w-full items-center justify-center rounded-full bg-errorContainer px-4 text-lg font-bold text-error shadow-sm transition-transform active:scale-95" onClick={() => void handleDelete()}>
+              <button type="button" className="flex min-h-[48px] lg:min-h-[44px] w-full lg:w-auto lg:min-w-[200px] items-center justify-center rounded-full bg-errorContainer px-6 text-base font-bold text-error shadow-sm transition-transform active:scale-95" onClick={() => setShowDeleteDialog(true)}>
                 Delete or Deactivate
               </button>
             ) : null}
           </div>
 
           {status ? (
-            <p className="mt-2 text-center text-sm font-semibold text-onSurfaceVariant" aria-live="polite">
+            <p className="mt-2 text-center lg:text-left text-sm font-semibold text-onSurfaceVariant" aria-live="polite" role="alert">
               {status}
             </p>
           ) : null}
         </div>
       </form>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={(open) => !open && !isDeleting && setShowDeleteDialog(false)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will delete or deactivate this category. If it has recipes, it will be deactivated instead of deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void handleDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-error text-onError hover:bg-error/90"
+            >
+              {isDeleting ? "Processing..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
