@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Papa from "papaparse";
 import { MEAL_SLOT_VALUES, type Category, type MealSlot } from "@/lib/types";
+import { getAdminToken } from "@/lib/admin-auth";
 
 type StorageImage = {
   name: string;
@@ -43,7 +44,7 @@ const AdminImportPage = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getToken = (): string | null => {
-    const token = localStorage.getItem("admin_access_token");
+    const token = getAdminToken();
     if (!token) {
       setParseError("Please log in first.");
       return null;
@@ -54,7 +55,7 @@ const AdminImportPage = () => {
   // Load categories and image names for validation
   const loadDependencies = useCallback(async () => {
     try {
-      const token = localStorage.getItem("admin_access_token");
+      const token = getToken();
       if (!token) {
         setLoadingDeps(false);
         return;
@@ -293,7 +294,7 @@ const AdminImportPage = () => {
 
         {/* Error Banner */}
         {parseError ? (
-          <section className="bg-errorContainer p-4 rounded-2xl shadow-sm">
+          <section className="bg-errorContainer p-4 rounded-2xl shadow-sm" role="alert">
             <p className="text-error font-bold m-0 whitespace-pre-line">{parseError}</p>
             <button
               type="button"
