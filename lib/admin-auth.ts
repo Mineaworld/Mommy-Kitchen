@@ -8,3 +8,7 @@ export function getAdminToken(): string | null {
 export function setAdminToken(token: string): void {
   localStorage.setItem(TOKEN_KEY, token);
 }
+
+export function removeAdminToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
