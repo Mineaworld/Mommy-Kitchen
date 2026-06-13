@@ -39,7 +39,9 @@ export async function listStorageImages(): Promise<
  */
 export async function deleteStorageImage(filename: string): Promise<boolean> {
   const client = getSupabaseAdminClient();
-  if (!client) return false;
+  if (!client) {
+    throw new Error("Storage is not configured: admin client unavailable");
+  }
 
   const { error } = await client.storage.from(BUCKET).remove([filename]);
 
@@ -49,28 +51,13 @@ export async function deleteStorageImage(filename: string): Promise<boolean> {
 /**
  * Get the public URL for a filename.
  */
-export function getPublicImageUrl(filename: string): string | null {
+export function getPublicImageUrl(filename: string): string {
   const client = getSupabaseAdminClient();
-  if (!client) return null;
+  if (!client) {
+    throw new Error("Storage is not configured: admin client unavailable");
+  }
 
   const { data } = client.storage.from(BUCKET).getPublicUrl(filename);
 
   return data.publicUrl;
-}
-
-/**
- * Check if a file exists in the bucket.
- */
-export async function checkImageExists(filename: string): Promise<boolean> {
-  const client = getSupabaseAdminClient();
-  if (!client) return false;
-
-  const { data, error } = await client.storage.from(BUCKET).list("", {
-    limit: 1000,
-    sortBy: { column: "name", order: "asc" },
-  });
-
-  if (error || !data) return false;
-
-  return data.some((file) => file.name === filename);
 }

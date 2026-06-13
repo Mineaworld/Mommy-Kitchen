@@ -27,7 +27,7 @@ export const GET = async (request: NextRequest) => {
     name: img.name,
     size: img.size,
     updated_at: img.updated_at,
-    public_url: getPublicImageUrl(img.name) ?? "",
+    public_url: getPublicImageUrl(img.name),
   }));
 
   return NextResponse.json({ data: withUrls });

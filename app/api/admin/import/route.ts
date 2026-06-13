@@ -78,10 +78,6 @@ export const POST = async (request: NextRequest) => {
     }
 
     const publicUrl = getPublicImageUrl(parsed.data.image_filename);
-    if (!publicUrl) {
-      errors.push({ row: rowNum, message: `Could not resolve public URL for image "${parsed.data.image_filename}"` });
-      continue;
-    }
 
     const recipeInput: RecipeInput = {
       title_km: parsed.data.title_km,
