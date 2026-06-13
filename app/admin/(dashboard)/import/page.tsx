@@ -73,11 +73,19 @@ const AdminImportPage = () => {
       if (catRes.ok) {
         const catJson = (await catRes.json()) as { data: Category[] };
         setCategories(catJson.data);
+      } else {
+        setParseError(`Failed to load categories (${catRes.status}). ${catRes.status === 401 ? "Please log in again." : "Please try again."}`);
+        setLoadingDeps(false);
+        return;
       }
 
       if (imgRes.ok) {
         const imgJson = (await imgRes.json()) as { data: StorageImage[] };
         setImageNames(new Set(imgJson.data.map((img) => img.name)));
+      } else {
+        setParseError(`Failed to load images (${imgRes.status}). ${imgRes.status === 401 ? "Please log in again." : "Please try again."}`);
+        setLoadingDeps(false);
+        return;
       }
     } catch {
       setParseError("Failed to load categories or images.");
@@ -130,9 +138,14 @@ const AdminImportPage = () => {
     }
 
     if (raw.duration_minutes && raw.duration_minutes.trim().length > 0) {
-      const num = parseInt(raw.duration_minutes.trim(), 10);
-      if (isNaN(num) || num < 1) {
-        errors.push("Duration must be a positive integer");
+      const trimmed = raw.duration_minutes.trim();
+      if (!/^\d+$/.test(trimmed)) {
+        errors.push("Duration must be a positive integer (digits only)");
+      } else {
+        const num = parseInt(trimmed, 10);
+        if (num < 1) {
+          errors.push("Duration must be a positive integer");
+        }
       }
     }
 
@@ -211,7 +224,7 @@ const AdminImportPage = () => {
           youtube_url: r.youtube_url?.trim() ?? "",
           category_slug: r.category_slug.trim(),
           meal_slot: (r.meal_slot?.trim() as MealSlot) || "any",
-          duration_minutes: r.duration_minutes?.trim()
+          duration_minutes: r.duration_minutes?.trim() && /^\d+$/.test(r.duration_minutes.trim())
             ? parseInt(r.duration_minutes.trim(), 10)
             : undefined,
         }));

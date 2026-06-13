@@ -236,9 +236,11 @@ const AdminImagesPage = () => {
     if (!token || deleteTargets.length === 0) return;
 
     setIsDeleting(true);
+    setError("");
 
     try {
-      // Delete sequentially or parallel. Sequential is safer if API doesn't support bulk.
+      const successfulDeletes: string[] = [];
+
       for (const filename of deleteTargets) {
         const response = await fetch("/api/admin/images", {
           method: "DELETE",
@@ -249,18 +251,20 @@ const AdminImagesPage = () => {
           body: JSON.stringify({ filename }),
         });
 
-        if (!response.ok) {
-          setError(`Failed to delete ${filename}.`);
+        if (response.ok) {
+          successfulDeletes.push(filename);
+        } else {
+          setError((prev) => prev ? `${prev}\nFailed to delete ${filename}.` : `Failed to delete ${filename}.`);
         }
       }
 
-      setImages((prev) => prev.filter((img) => !deleteTargets.includes(img.name)));
-      
-      // Remove from selected if they were deleted
-      const newSelected = new Set(selectedImages);
-      deleteTargets.forEach((t) => newSelected.delete(t));
-      setSelectedImages(newSelected);
-      
+      if (successfulDeletes.length > 0) {
+        setImages((prev) => prev.filter((img) => !successfulDeletes.includes(img.name)));
+
+        const newSelected = new Set(selectedImages);
+        successfulDeletes.forEach((t) => newSelected.delete(t));
+        setSelectedImages(newSelected);
+      }
     } catch {
       setError("Network error during delete.");
     } finally {

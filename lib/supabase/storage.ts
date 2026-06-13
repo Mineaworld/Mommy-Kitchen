@@ -10,14 +10,20 @@ export async function listStorageImages(): Promise<
   { name: string; size: number; updated_at: string }[]
 > {
   const client = getSupabaseAdminClient();
-  if (!client) return [];
+  if (!client) {
+    throw new Error("Storage is not configured: admin client unavailable");
+  }
 
   const { data, error } = await client.storage.from(BUCKET).list("", {
     limit: 1000,
     sortBy: { column: "name", order: "asc" },
   });
 
-  if (error || !data) return [];
+  if (error) {
+    throw new Error(`Failed to list storage images: ${error.message}`);
+  }
+
+  if (!data) return [];
 
   return data
     .filter((file) => file.name !== ".emptyFolderPlaceholder")

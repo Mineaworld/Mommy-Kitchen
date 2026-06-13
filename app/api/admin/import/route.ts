@@ -16,7 +16,16 @@ export const POST = async (request: NextRequest) => {
     );
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "INVALID_JSON", message: "Invalid JSON body" } },
+      { status: 400 }
+    );
+  }
+
   const rows = body?.rows;
 
   if (!Array.isArray(rows) || rows.length === 0) {
@@ -32,7 +41,15 @@ export const POST = async (request: NextRequest) => {
     categories.map((c) => [c.slug, c.id])
   );
 
-  const storageImages = await listStorageImages();
+  let storageImages: Awaited<ReturnType<typeof listStorageImages>>;
+  try {
+    storageImages = await listStorageImages();
+  } catch (err) {
+    return NextResponse.json(
+      { error: { code: "SERVICE_UNAVAILABLE", message: err instanceof Error ? err.message : "Storage unavailable" } },
+      { status: 503 }
+    );
+  }
   const imageSet = new Set<string>(storageImages.map((img) => img.name));
 
   const errors: Array<{ row: number; message: string }> = [];
@@ -60,9 +77,15 @@ export const POST = async (request: NextRequest) => {
       continue;
     }
 
+    const publicUrl = getPublicImageUrl(parsed.data.image_filename);
+    if (!publicUrl) {
+      errors.push({ row: rowNum, message: `Could not resolve public URL for image "${parsed.data.image_filename}"` });
+      continue;
+    }
+
     const recipeInput: RecipeInput = {
       title_km: parsed.data.title_km,
-      thumbnail_url: getPublicImageUrl(parsed.data.image_filename) ?? "",
+      thumbnail_url: publicUrl,
       category_id: categoryMap.get(parsed.data.category_slug)!,
       meal_slot: parsed.data.meal_slot ?? "any",
       youtube_url: parsed.data.youtube_url || "",

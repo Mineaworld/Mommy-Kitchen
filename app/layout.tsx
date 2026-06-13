@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
-import { Noto_Sans, Noto_Sans_Khmer, Geist } from "next/font/google";
+import { Noto_Sans, Noto_Sans_Khmer } from "next/font/google";
 import "./globals.css";
 import SwRegister from "@/components/sw-register";
 import { BottomNav } from "@/components/bottom-nav";
 import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
@@ -36,7 +34,7 @@ type RootLayoutProps = {
 
 const RootLayout = ({ children }: RootLayoutProps) => {
   return (
-    <html lang="km" className={cn(notoSans.variable, notoSansKhmer.variable, "font-sans", geist.variable)}>
+    <html lang="km" className={cn(notoSans.variable, notoSansKhmer.variable, "font-sans")}>
       <body className="bg-background text-onBackground font-sans min-h-screen">
         <a href="#main-content" className="absolute -top-[100px] left-3 z-[9999] bg-black text-white rounded-md px-3 py-2 focus:top-3">
           Skip to content

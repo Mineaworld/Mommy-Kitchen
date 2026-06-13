@@ -13,7 +13,16 @@ export const GET = async (request: NextRequest) => {
     return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Missing token" } }, { status: 401 });
   }
 
-  const images = await listStorageImages();
+  let images: Awaited<ReturnType<typeof listStorageImages>>;
+  try {
+    images = await listStorageImages();
+  } catch (err) {
+    return NextResponse.json(
+      { error: { code: "SERVICE_UNAVAILABLE", message: err instanceof Error ? err.message : "Storage unavailable" } },
+      { status: 503 }
+    );
+  }
+
   const withUrls = images.map((img) => ({
     name: img.name,
     size: img.size,
@@ -92,7 +101,16 @@ export const DELETE = async (request: NextRequest) => {
     );
   }
 
-  const body = await request.json();
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: { code: "VALIDATION_ERROR", message: "Invalid JSON body" } },
+      { status: 400 }
+    );
+  }
+
   const filename = body?.filename;
   if (!filename || typeof filename !== "string") {
     return NextResponse.json(

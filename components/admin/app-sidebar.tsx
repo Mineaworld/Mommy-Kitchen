@@ -51,7 +51,7 @@ export function AppSidebar() {
 
   const handleLogout = () => {
     localStorage.removeItem("admin_access_token");
-    document.cookie = "admin_access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT";
+    document.cookie = `admin_access_token=; Path=/; Max-Age=0; SameSite=Lax${window.location.protocol === "https:" ? "; Secure" : ""}`;
     window.location.href = "/admin/login";
   };
 

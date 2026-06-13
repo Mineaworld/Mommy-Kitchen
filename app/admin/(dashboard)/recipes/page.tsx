@@ -71,6 +71,7 @@ const AdminRecipesPage = () => {
     if (!deleteTarget) return;
 
     setIsDeleting(true);
+    setError("");
     const token = getAdminToken();
     if (!token) {
       setIsDeleting(false);

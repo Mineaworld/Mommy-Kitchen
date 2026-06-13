@@ -27,17 +27,22 @@ const LoginPage = () => {
       return;
     }
 
-    const { data, error: signInError } = await client.auth.signInWithPassword({ email, password });
+    try {
+      const { data, error: signInError } = await client.auth.signInWithPassword({ email, password });
 
-    if (signInError || !data.session) {
-      setError(signInError?.message ?? "Unable to sign in");
+      if (signInError || !data.session) {
+        setError(signInError?.message ?? "Unable to sign in");
+        return;
+      }
+
+      setAdminToken(data.session.access_token);
+      document.cookie = `admin_access_token=${data.session.access_token}; Path=/; Max-Age=604800; SameSite=Lax${window.location.protocol === "https:" ? "; Secure" : ""}`;
+      router.push("/admin/recipes");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    setAdminToken(data.session.access_token);
-    document.cookie = `admin_access_token=${data.session.access_token}; Path=/; Max-Age=604800; SameSite=Lax${window.location.protocol === "https:" ? "; Secure" : ""}`;
-    router.push("/admin/recipes");
   };
 
   return (
