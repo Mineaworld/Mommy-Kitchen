@@ -1,20 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Category } from "@/lib/types";
+import { getAdminToken } from "@/lib/admin-auth";
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     const load = async () => {
-      const token = localStorage.getItem("admin_access_token");
+      const token = getAdminToken();
       if (!token) {
-        setError("Please log in first.");
-        setLoading(false);
+        router.push("/admin/login");
         return;
       }
 
@@ -35,49 +37,42 @@ const AdminCategoriesPage = () => {
       }
     };
     void load();
-  }, []);
+  }, [router]);
 
   return (
-    <main className="mx-auto min-h-screen max-w-[800px] bg-surface pb-[100px]">
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between bg-surface/90 px-4 backdrop-blur-md">
-        <h1 className="m-0 text-xl font-bold text-onSurface">Admin Categories</h1>
-        <div className="flex gap-2">
-          <Link className="inline-flex h-10 items-center justify-center rounded-full bg-surfaceContainer px-4 text-sm font-semibold text-primary transition-colors hover:bg-surfaceContainerHigh" href="/admin/recipes">
-            Recipes
+    <main className="w-full mx-auto min-h-screen pb-[100px]">
+      <div className="grid gap-4 px-4 lg:px-6 py-4 lg:py-6">
+        <section className="bg-surfaceContainer px-4 py-3 rounded-2xl flex flex-wrap justify-between items-center gap-4 shadow-sm">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-bold text-onSurface m-0">Categories</h2>
+            <span className="bg-secondaryContainer text-onSecondaryContainer font-bold text-sm px-3 py-1 rounded-full">{categories.length} Total</span>
+          </div>
+          <Link className="inline-flex items-center justify-center h-10 px-4 rounded-full text-sm font-bold text-onPrimary bg-primary hover:bg-primary/90 transition-colors shadow-sm" href="/admin/categories/new">
+            + New Category
           </Link>
-          <Link className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-bold text-onPrimary shadow-sm transition-colors hover:bg-primary/90" href="/admin/categories/new">
-            + New
-          </Link>
-        </div>
-      </header>
-
-      <div className="grid gap-4 px-4 py-4">
-        <section className="flex items-center justify-between rounded-2xl bg-surfaceContainer px-4 py-3 shadow-sm">
-          <h2 className="m-0 text-lg font-bold text-onSurface">Manage Categories</h2>
-          <span className="rounded-full bg-secondaryContainer px-3 py-1 text-sm font-bold text-onSecondaryContainer">{categories.length} Total</span>
         </section>
 
         {error ? (
-          <section className="rounded-2xl bg-errorContainer p-4 shadow-sm">
+          <section className="rounded-2xl bg-errorContainer p-4 shadow-sm" role="alert">
             <p className="m-0 font-bold text-error">{error}</p>
           </section>
         ) : null}
 
         {loading ? (
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {[1, 2, 3, 4].map((i) => (
               <div className="rounded-2xl bg-surfaceContainerLow p-4 shadow-sm" key={i}>
-                <div className="mb-3 h-[150px] w-full animate-pulse rounded-xl bg-surfaceContainerHighest" />
+                <div className="mb-3 aspect-square w-full animate-pulse rounded-xl bg-surfaceContainerHighest" />
                 <div className="h-6 w-3/4 animate-pulse rounded-md bg-surfaceContainerHighest" />
               </div>
             ))}
           </section>
         ) : (
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {categories.map((category) => (
               <article className="overflow-hidden rounded-2xl border border-outlineVariant/30 bg-surfaceContainerLowest shadow-sm" key={category.id}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={category.cover_image_url} alt={category.name_km} className="h-[150px] w-full object-cover" />
+                <img src={category.cover_image_url} alt={category.name_km} className="aspect-square w-full object-cover bg-surfaceContainerHighest" />
                 <div className="grid gap-3 p-4">
                   <div>
                     <h3 className="mb-2 text-xl font-bold text-onSurface">{category.name_km}</h3>

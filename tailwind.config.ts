@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import tailwindcssAnimate from "tailwindcss-animate";
 
 const config: Config = {
   content: [
@@ -8,6 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        /* === Material Design 3 Tokens === */
         surface: "var(--surface)",
         surfaceDim: "var(--surface-dim)",
         surfaceBright: "var(--surface-bright)",
@@ -55,6 +57,46 @@ const config: Config = {
         background: "var(--background)",
         onBackground: "var(--on-background)",
         surfaceVariant: "var(--surface-variant)",
+
+        /* === Shadcn Generic Aliases (mapped to MD3) === */
+        border: "var(--outline-variant)",
+        input: "var(--outline)",
+        ring: "var(--primary)",
+        foreground: "var(--on-background)",
+        "primary-foreground": "var(--on-primary)",
+        "secondary-foreground": "var(--on-secondary)",
+        muted: {
+          DEFAULT: "var(--surface-container-low)",
+          foreground: "var(--on-surface-variant)",
+        },
+        accent: {
+          DEFAULT: "var(--surface-container-high)",
+          foreground: "var(--on-surface)",
+        },
+        popover: {
+          DEFAULT: "var(--surface-container-lowest)",
+          foreground: "var(--on-surface)",
+        },
+        card: {
+          DEFAULT: "var(--surface-container-lowest)",
+          foreground: "var(--on-surface)",
+        },
+        destructive: {
+          DEFAULT: "var(--error)",
+          foreground: "var(--on-error)",
+        },
+
+        /* === Shadcn Sidebar === */
+        sidebar: {
+          DEFAULT: "var(--sidebar)",
+          foreground: "var(--sidebar-foreground)",
+          primary: "var(--sidebar-primary)",
+          "primary-foreground": "var(--sidebar-primary-foreground)",
+          accent: "var(--sidebar-accent)",
+          "accent-foreground": "var(--sidebar-accent-foreground)",
+          border: "var(--sidebar-border)",
+          ring: "var(--sidebar-ring)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-noto-sans)", "var(--font-noto-sans-khmer)", "sans-serif"],
@@ -69,6 +111,6 @@ const config: Config = {
       }
     },
   },
-  plugins: [],
+  plugins: [tailwindcssAnimate],
 };
 export default config;
