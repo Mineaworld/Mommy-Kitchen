@@ -38,3 +38,9 @@ mom-app-mobile-home.png
 # Sisyphus
 .sisyphus/
 .opencode/
+
+# Planning docs
+docs/*.md
+
+# Windows reserved-name artifact
+nul
