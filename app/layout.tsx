@@ -7,14 +7,14 @@ import { cn } from "@/lib/utils";
 
 const notoSans = Noto_Sans({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "700"],
   display: "swap",
   variable: "--font-noto-sans",
 });
 
 const notoSansKhmer = Noto_Sans_Khmer({
   subsets: ["khmer"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "700"],
   display: "swap",
   variable: "--font-noto-sans-khmer",
 });
