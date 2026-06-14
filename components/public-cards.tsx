@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PlayIcon, SpeakerIcon } from "@/components/icons";
 import { appCopy } from "@/lib/khmer-labels";
@@ -14,13 +15,13 @@ export const RecipeCard = ({ recipe, categoryName, priority = false }: RecipeCar
     <article className="overflow-hidden rounded-2xl border border-outlineVariant/20 bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.1)]">
       <Link href={`/recipe/${recipe.id}`} className="group block">
         <div className="relative h-[220px] overflow-hidden bg-surfaceContainerLow">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={recipe.thumbnail_url}
             alt={recipe.title_km}
             width={720}
             height={460}
-            loading={priority ? "eager" : "lazy"}
+            priority={priority}
+            sizes="(max-width: 800px) 100vw, 800px"
             className="h-full w-full object-cover transition-transform duration-200 group-active:scale-[0.98]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
@@ -61,13 +62,12 @@ export const CategoryCard = ({ category }: CategoryCardProps) => {
       href={`/category/${category.slug}`}
       className="relative block h-[200px] overflow-hidden rounded-2xl bg-surfaceContainerLow shadow-[0_4px_14px_rgba(0,0,0,0.1)] transition-transform active:scale-[0.98]"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={category.cover_image_url}
         alt={category.name_km}
         width={720}
         height={420}
-        loading="lazy"
+        sizes="(max-width: 800px) 100vw, 800px"
         className="h-full w-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
