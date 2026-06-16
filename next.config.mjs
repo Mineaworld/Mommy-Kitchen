@@ -7,6 +7,7 @@ const nextConfig = {
       { protocol: "https", hostname: "**.supabase.co" },
       { protocol: "https", hostname: "**.supabase.in" },
       { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "upload.wikimedia.org" },
     ],
     minimumCacheTTL: 3600,
     deviceSizes: [640, 750, 828, 1080],
