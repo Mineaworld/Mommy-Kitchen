@@ -58,7 +58,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
         /* categories will remain empty, fallback to text input */
       }
     };
-    void loadCategories();
+    loadCategories().catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
       });
     };
 
-    void load();
+    load().catch(() => {});
   }, [mode, recipeId, router]);
 
   const videoId = useMemo(() => parseYoutubeVideoId(payload.youtube_url), [payload.youtube_url]);
@@ -355,7 +355,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                void handleDelete();
+                handleDelete().catch(() => {});
               }}
               disabled={isDeleting}
               className="bg-error text-onError hover:bg-error/90"

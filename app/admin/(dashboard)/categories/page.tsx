@@ -36,7 +36,7 @@ const AdminCategoriesPage = () => {
         setLoading(false);
       }
     };
-    void load();
+    load().catch(() => {});
   }, [router]);
 
   return (

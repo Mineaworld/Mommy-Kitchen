@@ -30,7 +30,7 @@ type FavoriteButtonProps = {
 };
 
 const FavoriteButton = ({ recipeId }: FavoriteButtonProps) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(() => readFavorites().includes(recipeId));
 
   useEffect(() => {
     setIsFavorite(readFavorites().includes(recipeId));

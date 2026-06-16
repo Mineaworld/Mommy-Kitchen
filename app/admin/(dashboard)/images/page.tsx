@@ -80,7 +80,7 @@ const AdminImagesPage = () => {
   }, []);
 
   useEffect(() => {
-    void loadImages();
+    loadImages().catch(() => {});
   }, [loadImages]);
 
   const validateFiles = (files: File[]): { valid: File[]; errors: string[] } => {
@@ -190,7 +190,7 @@ const AdminImagesPage = () => {
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
-    void uploadFiles(Array.from(files));
+    uploadFiles(Array.from(files)).catch(() => {});
     // Reset input so same file can be selected again
     event.target.value = "";
   };
@@ -200,7 +200,7 @@ const AdminImagesPage = () => {
     setIsDragOver(false);
     const files = event.dataTransfer.files;
     if (!files || files.length === 0) return;
-    void uploadFiles(Array.from(files));
+    uploadFiles(Array.from(files)).catch(() => {});
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -239,22 +239,24 @@ const AdminImagesPage = () => {
     setError("");
 
     try {
-      const successfulDeletes: string[] = [];
+      const results = await Promise.all(
+        deleteTargets.map(async (filename) => {
+          const response = await fetch("/api/admin/images", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ filename }),
+          });
+          return { filename, ok: response.ok };
+        })
+      );
 
-      for (const filename of deleteTargets) {
-        const response = await fetch("/api/admin/images", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ filename }),
-        });
-
-        if (response.ok) {
-          successfulDeletes.push(filename);
-        } else {
-          setError((prev) => prev ? `${prev}\nFailed to delete ${filename}.` : `Failed to delete ${filename}.`);
+      const successfulDeletes = results.filter((r) => r.ok).map((r) => r.filename);
+      for (const result of results) {
+        if (!result.ok) {
+          setError((prev) => prev ? `${prev}\nFailed to delete ${result.filename}.` : `Failed to delete ${result.filename}.`);
         }
       }
 
@@ -343,6 +345,10 @@ const AdminImagesPage = () => {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
+            role="button"
+            tabIndex={0}
+            aria-label="Upload images by clicking or dragging files"
             className={`
               relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all
               ${isDragOver
@@ -473,7 +479,7 @@ const AdminImagesPage = () => {
                   <p
                     className="text-sm font-semibold text-onSurface truncate m-0 cursor-pointer hover:text-primary transition-colors"
                     title={`Click to copy: ${image.name}`}
-                    onClick={() => void handleCopyFilename(image.name)}
+                    onClick={() => { handleCopyFilename(image.name).catch(() => {}); }}
                   >
                     {image.name}
                   </p>
@@ -509,7 +515,7 @@ const AdminImagesPage = () => {
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                void executeDelete();
+                executeDelete().catch(() => {});
               }}
               disabled={isDeleting}
               className="bg-error text-onError hover:bg-error/90"

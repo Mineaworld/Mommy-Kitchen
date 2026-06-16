@@ -53,9 +53,9 @@ export const POST = async (request: NextRequest) => {
   const imageSet = new Set<string>(storageImages.map((img) => img.name));
 
   const errors: Array<{ row: number; message: string }> = [];
-  let created = 0;
+  const validInputs: Array<{ row: number; input: RecipeInput }> = [];
 
-  // Process rows sequentially
+  // Validate all rows first (synchronous)
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i];
     const rowNum = i + 1;
@@ -79,25 +79,42 @@ export const POST = async (request: NextRequest) => {
 
     const publicUrl = getPublicImageUrl(parsed.data.image_filename);
 
-    const recipeInput: RecipeInput = {
-      title_km: parsed.data.title_km,
-      thumbnail_url: publicUrl,
-      category_id: categoryMap.get(parsed.data.category_slug)!,
-      meal_slot: parsed.data.meal_slot ?? "any",
-      youtube_url: parsed.data.youtube_url || "",
-      duration_minutes:
-        typeof parsed.data.duration_minutes === "number"
-          ? parsed.data.duration_minutes
-          : undefined,
-      is_published: true,
-    };
+    validInputs.push({
+      row: rowNum,
+      input: {
+        title_km: parsed.data.title_km,
+        thumbnail_url: publicUrl,
+        category_id: categoryMap.get(parsed.data.category_slug)!,
+        meal_slot: parsed.data.meal_slot ?? "any",
+        youtube_url: parsed.data.youtube_url || "",
+        duration_minutes:
+          typeof parsed.data.duration_minutes === "number"
+            ? parsed.data.duration_minutes
+            : undefined,
+        is_published: true,
+      },
+    });
+  }
 
-    try {
-      await RecipeRepository.create(recipeInput);
+  // Create all recipes in parallel
+  const results = await Promise.all(
+    validInputs.map(async ({ row, input }) => {
+      try {
+        await RecipeRepository.create(input);
+        return { row, ok: true as const };
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        return { row, ok: false as const, message };
+      }
+    })
+  );
+
+  let created = 0;
+  for (const result of results) {
+    if (result.ok) {
       created++;
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
-      errors.push({ row: rowNum, message: `Create failed: ${message}` });
+    } else {
+      errors.push({ row: result.row, message: `Create failed: ${result.message}` });
     }
   }
 

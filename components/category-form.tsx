@@ -72,8 +72,8 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
       });
     };
 
-    void load();
-  }, [categoryId, mode]);
+    load().catch(() => {});
+  }, [categoryId, mode, router]);
 
   const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -270,7 +270,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                void handleDelete();
+                handleDelete().catch(() => {});
               }}
               disabled={isDeleting}
               className="bg-error text-onError hover:bg-error/90"
