@@ -32,18 +32,17 @@ const RecipePage = ({ params }: RecipePageProps) => {
       }
       const json = (await response.json()) as { data: Recipe };
       setRecipe(json.data);
-      void fetch("/api/analytics", {
+      fetch("/api/analytics", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           event_name: "recipe_opened",
           recipe_id: json.data.id,
           category_id: json.data.category_id,
-          device_type: getDeviceType()
         })
-      });
+      }).catch(() => {});
     };
-    void load();
+    load().catch(() => {});
   }, [params]);
 
   const embedUrl = useMemo(() => {
@@ -103,6 +102,7 @@ const RecipePage = ({ params }: RecipePageProps) => {
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             referrerPolicy="strict-origin-when-cross-origin"
             allowFullScreen
+            sandbox="allow-same-origin allow-scripts allow-popups"
           />
         ) : (
           <div className="flex aspect-video w-full items-center justify-center bg-black/80 px-8 text-center text-xl font-bold text-white">
@@ -136,7 +136,7 @@ const RecipePage = ({ params }: RecipePageProps) => {
             rel="noreferrer"
             className="flex min-h-[56px] items-center justify-center gap-2 rounded-2xl bg-primary px-4 text-lg font-bold text-onPrimary shadow-[0_4px_12px_rgba(158,61,0,0.4)] transition-transform active:scale-95"
             onClick={() => {
-              void fetch("/api/analytics", {
+              fetch("/api/analytics", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -145,7 +145,7 @@ const RecipePage = ({ params }: RecipePageProps) => {
                   category_id: recipe.category_id,
                   device_type: getDeviceType()
                 })
-              });
+              }).catch(() => {});
             }}
           >
             <PlayIcon />

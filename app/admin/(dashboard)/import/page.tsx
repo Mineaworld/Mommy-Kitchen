@@ -95,7 +95,7 @@ const AdminImportPage = () => {
   }, []);
 
   useEffect(() => {
-    void loadDependencies();
+    loadDependencies().catch(() => {});
   }, [loadDependencies]);
 
   const validateRow = (raw: CsvRow, index: number): ValidatedRow => {
@@ -302,6 +302,7 @@ const AdminImportPage = () => {
             accept=".csv"
             onChange={handleFileSelect}
             className="sr-only"
+            aria-label="Choose CSV file to import"
           />
         </section>
 
@@ -334,8 +335,8 @@ const AdminImportPage = () => {
                   {importResult.errors.length} row{importResult.errors.length !== 1 ? "s" : ""} skipped:
                 </p>
                 <ul className="mt-1 ml-4 list-disc">
-                  {importResult.errors.map((e, i) => (
-                    <li key={i} className="text-error text-sm">
+                  {importResult.errors.map((e) => (
+                    <li key={e.row} className="text-error text-sm">
                       Row {e.row}: {e.message}
                     </li>
                   ))}
@@ -458,7 +459,7 @@ const AdminImportPage = () => {
             {/* Import Button */}
             <button
               type="button"
-              onClick={() => void handleImport()}
+              onClick={() => { handleImport().catch(() => {}); }}
               disabled={!canImport}
               className="w-full bg-primary text-onPrimary font-bold rounded-full min-h-[56px] text-lg px-4 flex items-center justify-center transition-transform active:scale-95 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >

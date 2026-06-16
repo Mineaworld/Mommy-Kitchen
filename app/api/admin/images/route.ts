@@ -52,7 +52,7 @@ export const POST = async (request: NextRequest) => {
   const files = formData.getAll("files");
 
   const errors: string[] = [];
-  let uploaded = 0;
+  const validEntries: File[] = [];
 
   for (const entry of files) {
     if (!(entry instanceof File)) {
@@ -70,14 +70,24 @@ export const POST = async (request: NextRequest) => {
       continue;
     }
 
-    const buffer = Buffer.from(await entry.arrayBuffer());
-    const { error } = await client.storage.from("recipe-images").upload(entry.name, buffer, {
-      contentType: entry.type,
-      upsert: true,
-    });
+    validEntries.push(entry);
+  }
 
-    if (error) {
-      errors.push(`${entry.name}: upload failed — ${error.message}`);
+  const results = await Promise.all(
+    validEntries.map(async (entry) => {
+      const buffer = Buffer.from(await entry.arrayBuffer());
+      const { error } = await client.storage.from("recipe-images").upload(entry.name, buffer, {
+        contentType: entry.type,
+        upsert: true,
+      });
+      return { name: entry.name, error };
+    })
+  );
+
+  let uploaded = 0;
+  for (const result of results) {
+    if (result.error) {
+      errors.push(`${result.name}: upload failed — ${result.error.message}`);
     } else {
       uploaded++;
     }

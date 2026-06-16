@@ -23,8 +23,10 @@ export const PUT = async (request: NextRequest, { params }: RouteProps) => {
     );
   }
 
-  const { id } = await params;
-  const existing = await CategoryRepository.getAllForAdmin();
+  const [{ id }, existing] = await Promise.all([
+    params,
+    CategoryRepository.getAllForAdmin()
+  ]);
   if (existing.some((category) => category.slug === parsed.data.slug && category.id !== id)) {
     return NextResponse.json(
       { error: { code: "VALIDATION_ERROR", message: "Category slug already exists", fields: { slug: ["Category slug already exists"] } } },

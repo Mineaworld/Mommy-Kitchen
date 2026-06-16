@@ -13,9 +13,11 @@ type CategoryPageProps = {
 
 const CategoryPage = async ({ params }: CategoryPageProps) => {
   const { slug } = await params;
-  const categories = await CategoryRepository.getAll();
+  const [categories, recipes] = await Promise.all([
+    CategoryRepository.getAll(),
+    RecipeRepository.getByCategorySlug(slug)
+  ]);
   const category = categories.find((item) => item.slug === slug);
-  const recipes = await RecipeRepository.getByCategorySlug(slug);
 
   if (!category) {
     return (

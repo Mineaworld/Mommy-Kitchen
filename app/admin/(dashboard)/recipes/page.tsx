@@ -64,7 +64,7 @@ const AdminRecipesPage = () => {
         setLoading(false);
       }
     };
-    void load();
+    load().catch(() => {});
   }, [router]);
 
   const executeDelete = async () => {
@@ -131,6 +131,7 @@ const AdminRecipesPage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full h-10 pl-9 pr-4 rounded-xl bg-surfaceContainerLow border border-outlineVariant/50 text-onSurface text-sm font-medium placeholder:text-onSurfaceVariant/60 outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              aria-label="Search recipes by title"
             />
           </div>
           <div className="flex flex-wrap gap-4 items-center w-full sm:w-auto">
@@ -238,7 +239,7 @@ const AdminRecipesPage = () => {
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
-                void executeDelete();
+                executeDelete().catch(() => {});
               }}
               disabled={isDeleting}
               className="bg-error text-onError hover:bg-error/90"

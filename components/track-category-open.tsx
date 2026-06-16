@@ -8,14 +8,15 @@ type TrackCategoryOpenProps = {
 
 const TrackCategoryOpen = ({ categoryId }: TrackCategoryOpenProps) => {
   useEffect(() => {
-    void fetch("/api/analytics", {
+    fetch("/api/analytics", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         event_name: "category_opened",
         category_id: categoryId,
-        device_type: navigator.userAgent
       })
+    }).catch(() => {
+      /* analytics is best-effort */
     });
   }, [categoryId]);
 
