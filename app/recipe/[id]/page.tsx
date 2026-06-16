@@ -42,7 +42,7 @@ const RecipePage = ({ params }: RecipePageProps) => {
         })
       }).catch(() => {});
     };
-    load().catch(() => {});
+    load().catch(() => setError("មានបញ្ហាក្នុងការទាញយកទិន្នន័យ"));
   }, [params]);
 
   const embedUrl = useMemo(() => {

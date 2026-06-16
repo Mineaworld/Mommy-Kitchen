@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HeartIcon } from "@/components/icons";
 
 const FAVORITES_KEY = "mom_recipe_favorites_v1";
@@ -31,6 +31,10 @@ type FavoriteButtonProps = {
 
 const FavoriteButton = ({ recipeId }: FavoriteButtonProps) => {
   const [isFavorite, setIsFavorite] = useState(() => readFavorites().includes(recipeId));
+
+  useEffect(() => {
+    setIsFavorite(readFavorites().includes(recipeId));
+  }, [recipeId]);
 
   const toggleFavorite = () => {
     const favorites = readFavorites();
