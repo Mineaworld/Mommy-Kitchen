@@ -32,7 +32,7 @@ const getCachedRecipes = unstable_cache(
     return ((data ?? []) as Partial<Recipe>[]).map(normalizeRecipe);
   },
   ["recipes-all"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ["recipes-all"] }
 );
 
 /**

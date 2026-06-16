@@ -96,50 +96,55 @@ type MenuCardProps = {
 };
 
 const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
-  <Link
-    href={`/recipe/${recipe.id}`}
-    className="group block rounded-2xl bg-surfaceContainerLowest shadow-sm hover:shadow-md border border-outlineVariant/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]"
-  >
-    <div className="relative w-full h-[240px] bg-surfaceContainerLow overflow-hidden">
-      <Image
-        src={recipe.thumbnail_url}
-        alt={recipe.title_km}
-        width={720}
-        height={460}
-        sizes="(max-width: 800px) 100vw, 800px"
-        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-      />
-      {categoryName && (
-        <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-primary shadow-sm border border-outlineVariant/10">
-          {categoryName}
-        </div>
-      )}
-    </div>
+  <article className="group rounded-2xl bg-surfaceContainerLowest shadow-sm hover:shadow-md border border-outlineVariant/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]">
+    <Link
+      href={`/recipe/${recipe.id}`}
+      className="block"
+    >
+      <div className="relative w-full h-[240px] bg-surfaceContainerLow overflow-hidden">
+        <Image
+          src={recipe.thumbnail_url}
+          alt={recipe.title_km}
+          width={720}
+          height={460}
+          sizes="(max-width: 800px) 100vw, 800px"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        {categoryName && (
+          <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-primary shadow-sm border border-outlineVariant/10">
+            {categoryName}
+          </div>
+        )}
+      </div>
 
-    <div className="p-5">
-      <div className="flex items-start gap-3 justify-between">
-        <h3 className="flex-1 text-[22px] font-bold text-onSurface leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+      <div className="p-5 pb-0">
+        <h3 className="text-[22px] font-bold text-onSurface leading-snug line-clamp-2 group-hover:text-primary transition-colors">
           {recipe.title_km}
         </h3>
+      </div>
+    </Link>
+
+    <div className="px-5 pb-5 pt-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3 text-sm font-medium text-onSurfaceVariant">
+          {recipe.duration_minutes !== null ? (
+            <span className="flex items-center gap-1.5 bg-surfaceContainerLow px-2.5 py-1.5 rounded-md border border-outlineVariant/20">
+              <Clock className="w-4 h-4 text-primary" />
+              {recipe.duration_minutes} នាទី
+            </span>
+          ) : null}
+        </div>
         <button
           type="button"
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); speakRecipe(recipe); }}
+          onClick={() => speakRecipe(recipe)}
           className="shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-surfaceContainer text-primary hover:bg-primary hover:text-onPrimary shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
           aria-label={`ស្តាប់ ${recipe.title_km}`}
         >
           <SpeakerIcon className="w-5 h-5" />
         </button>
       </div>
-      <div className="flex items-center gap-3 mt-3 text-sm font-medium text-onSurfaceVariant">
-        {recipe.duration_minutes ? (
-          <span className="flex items-center gap-1.5 bg-surfaceContainerLow px-2.5 py-1.5 rounded-md border border-outlineVariant/20">
-            <Clock className="w-4 h-4 text-primary" />
-            {recipe.duration_minutes} នាទី
-          </span>
-        ) : null}
-      </div>
     </div>
-  </Link>
+  </article>
 );
 
 const MenuPage = () => {

@@ -21,7 +21,7 @@ const getCachedCategories = unstable_cache(
     return (data ?? []) as Category[];
   },
   ["categories-all"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: ["categories-all"] }
 );
 
 /**
