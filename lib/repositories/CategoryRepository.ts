@@ -1,41 +1,16 @@
 import { randomUUID } from "crypto";
+import { unstable_cache, revalidateTag } from "next/cache";
 import type { Category, CategoryInput } from "@/lib/types";
 import { getSupabaseAdminClient, getSupabaseServerClient } from "@/lib/supabase/server";
+import { MOCK_CATEGORIES } from "@/lib/mock-data";
 
 const CATEGORY_COLUMNS = "id,slug,name_km,cover_image_url,display_order,is_active";
 
-/**
- * Repository class for managing Category data.
- * Uses Supabase as the primary data store with in-memory mock fallback.
- */
-export class CategoryRepository {
-  private static mockCategories: Category[] = [
-    {
-      id: "11111111-1111-1111-1111-111111111111",
-      slug: "soup",
-      name_km: "Soup",
-      cover_image_url: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800",
-      display_order: 1,
-      is_active: true
-    },
-    {
-      id: "22222222-2222-2222-2222-222222222222",
-      slug: "stir-fry",
-      name_km: "Stir Fry",
-      cover_image_url: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=800",
-      display_order: 2,
-      is_active: true
-    }
-  ];
-
-  /** Fetch all active categories, ordered by display_order. */
-  static async getAll(): Promise<Category[]> {
+/** Cached fetch for active categories — revalidates every 60 seconds. */
+const getCachedCategories = unstable_cache(
+  async (): Promise<Category[]> => {
     const client = getSupabaseServerClient();
-    if (!client) {
-      return this.mockCategories
-        .filter((item) => item.is_active)
-        .sort((a, b) => a.display_order - b.display_order);
-    }
+    if (!client) return [];
 
     const { data } = await client
       .from("categories")
@@ -43,9 +18,24 @@ export class CategoryRepository {
       .eq("is_active", true)
       .order("display_order", { ascending: true });
 
-    const categories = (data ?? []) as Category[];
-    return categories.length > 0
-      ? categories
+    return (data ?? []) as Category[];
+  },
+  ["categories-all"],
+  { revalidate: 60, tags: ["categories-all"] }
+);
+
+/**
+ * Repository class for managing Category data.
+ * Uses Supabase as the primary data store with in-memory mock fallback.
+ */
+export class CategoryRepository {
+  private static mockCategories: Category[] = [...MOCK_CATEGORIES];
+
+  /** Fetch all active categories, ordered by display_order (cached for 60s). */
+  static async getAll(): Promise<Category[]> {
+    const cached = await getCachedCategories();
+    return cached.length > 0
+      ? cached
       : this.mockCategories
           .filter((item) => item.is_active)
           .sort((a, b) => a.display_order - b.display_order);
@@ -103,6 +93,7 @@ export class CategoryRepository {
         ...input
       };
       this.mockCategories = [...this.mockCategories, created];
+      revalidateTag("categories-all");
       return created;
     }
 
@@ -116,6 +107,7 @@ export class CategoryRepository {
       throw new Error(error?.message ?? "Unable to create category");
     }
 
+    revalidateTag("categories-all");
     return data as Category;
   }
 
@@ -137,6 +129,7 @@ export class CategoryRepository {
         ...input
       };
       this.mockCategories[index] = updated;
+      revalidateTag("categories-all");
       return updated;
     }
 
@@ -151,6 +144,7 @@ export class CategoryRepository {
       throw new Error(error.message);
     }
 
+    revalidateTag("categories-all");
     return data ? (data as Category) : null;
   }
 
@@ -183,6 +177,7 @@ export class CategoryRepository {
       if (error || !data) {
         return null;
       }
+      revalidateTag("categories-all");
       return "deactivated";
     }
 
@@ -191,6 +186,7 @@ export class CategoryRepository {
       throw new Error(error.message);
     }
 
+    revalidateTag("categories-all");
     return "deleted";
   }
 
@@ -204,6 +200,7 @@ export class CategoryRepository {
     // Note: We can't check recipe references without importing RecipeRepository,
     // so mock mode always deletes for simplicity.
     this.mockCategories = this.mockCategories.filter((item) => item.id !== id);
+    revalidateTag("categories-all");
     return "deleted";
   }
 }

@@ -2,21 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Utensils } from "lucide-react";
 
 export const BottomNav = () => {
   const pathname = usePathname();
 
-  // Hide bottom nav in admin section
   if (pathname?.startsWith("/admin")) return null;
 
   const isHome = pathname === "/";
+  const isMenu = pathname === "/menu";
   const isCategory = pathname?.startsWith("/category");
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-[80px] bg-surfaceContainerHighest border-t border-outlineVariant/30 flex items-center justify-around z-50 rounded-t-[24px]">
-      <Link 
-        href="/" 
-        className="flex flex-col items-center justify-center min-w-[80px] h-full"
+    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-surfaceContainerHighest border-t border-outlineVariant/30 flex items-center justify-around z-50 rounded-t-xl">
+      <Link
+        href="/"
+        className="flex flex-col items-center justify-center min-w-20 h-full"
       >
         <div className={`w-16 h-8 rounded-full flex items-center justify-center transition-colors ${isHome ? "bg-primaryContainer text-onPrimaryContainer" : "text-onSurfaceVariant"}`}>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -25,10 +26,20 @@ export const BottomNav = () => {
         </div>
         <span className={`mt-1 text-xs font-semibold ${isHome ? "text-primary" : "text-onSurfaceVariant"}`}>ដើម</span>
       </Link>
-      
-      <Link 
-        href="/#categories" 
-        className="flex flex-col items-center justify-center min-w-[80px] h-full"
+
+      <Link
+        href="/menu"
+        className="flex flex-col items-center justify-center min-w-20 h-full"
+      >
+        <div className={`w-16 h-8 rounded-full flex items-center justify-center transition-colors ${isMenu ? "bg-primaryContainer text-onPrimaryContainer" : "text-onSurfaceVariant"}`}>
+          <Utensils className="w-6 h-6" />
+        </div>
+        <span className={`mt-1 text-xs font-semibold ${isMenu ? "text-primary" : "text-onSurfaceVariant"}`}>មីនុយ</span>
+      </Link>
+
+      <Link
+        href="/#categories"
+        className="flex flex-col items-center justify-center min-w-20 h-full"
       >
         <div className={`w-16 h-8 rounded-full flex items-center justify-center transition-colors ${isCategory ? "bg-primaryContainer text-onPrimaryContainer" : "text-onSurfaceVariant"}`}>
           <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">

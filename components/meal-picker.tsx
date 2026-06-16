@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DinnerIcon, LunchIcon, PlayIcon, SparkIcon } from "@/components/icons";
@@ -59,7 +60,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
         window.clearTimeout(spinTimeoutRef.current);
       }
     };
-  }, []);
+  }, [spinTimeoutRef]);
 
   const selectMealSlot = (mealSlot: PublicMealSlot) => {
     setSelectedMealSlot(mealSlot);
@@ -92,7 +93,8 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
     setIsSpinning(true);
     setAnnounceText("កំពុងបង្វិល");
 
-    const cycles = Math.min(Math.max(candidateRecipes.length * 2, 6), 14);
+    // Increase cycles for a longer, smoother fast spin
+    const cycles = Math.min(Math.max(candidateRecipes.length * 4, 15), 25);
 
     const step = (index: number) => {
       const recipe = candidateRecipes[index % candidateRecipes.length];
@@ -106,7 +108,9 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
         return;
       }
 
-      const delay = 90 + index * 25;
+      // Ease-out curve: very fast initially (30ms), dramatically slowing down at the end
+      const progress = index / cycles;
+      const delay = 30 + Math.pow(progress, 3) * 400;
       spinTimeoutRef.current = window.setTimeout(() => step(index + 1), delay);
     };
 
@@ -161,12 +165,12 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
       {selectedRecipe ? (
         <article className="overflow-hidden rounded-2xl bg-surfaceContainerLowest shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
           <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={selectedRecipe.thumbnail_url}
               alt={selectedRecipe.title_km}
               width={720}
               height={440}
+              sizes="(max-width: 800px) 100vw, 800px"
               className={`block h-[230px] w-full object-cover transition-all duration-300 ${isSpinning ? "scale-95 blur-[3px] brightness-110" : ""}`}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
