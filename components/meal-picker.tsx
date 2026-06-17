@@ -240,7 +240,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
   const spinDisabled = isSpinning || candidateRecipes.length <= 1;
 
   return (
-    <section className="grid gap-4 rounded-3xl border border-outlineVariant/20 bg-surfaceContainer p-5 shadow-sm" aria-labelledby="meal-picker-heading">
+    <section className="grid gap-4 rounded-3xl border border-outlineVariant bg-surfaceContainer p-5 shadow-sm" aria-labelledby="meal-picker-heading">
       <div className="grid gap-1 text-center">
         <h2 id="meal-picker-heading" className="m-0 text-2xl font-bold text-onSurface">
           ជ្រើសម្ហូបថ្ងៃនេះ
@@ -259,7 +259,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
               className={`flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-2xl px-2 text-base font-bold transition-colors ${
                 isActive
                   ? "border-2 border-transparent bg-secondaryContainer text-onSecondaryContainer shadow-sm"
-                  : "border-2 border-outlineVariant/30 bg-surfaceContainerLowest text-onSurfaceVariant"
+                  : "border-2 border-outlineVariant bg-surfaceContainerLowest text-onSurfaceVariant"
               }`}
               aria-pressed={isActive}
               onClick={() => selectMealSlot(mealSlot)}
@@ -329,11 +329,11 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
           </div>
         </article>
       ) : candidateRecipes.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-outlineVariant/30 bg-surfaceContainerLowest p-6 text-center">
+        <div className="rounded-2xl border-2 border-dashed border-outlineVariant bg-surfaceContainerLowest p-6 text-center">
           <p className="m-0 text-base font-semibold text-onSurfaceVariant">គ្មានមុខម្ហូប</p>
         </div>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-outlineVariant/30 bg-surfaceContainerLowest p-6 text-center">
+        <div className="rounded-2xl border-2 border-dashed border-outlineVariant bg-surfaceContainerLowest p-6 text-center">
           <p className="m-0 text-base font-semibold text-onSurfaceVariant">ចុចបង្វិលដើម្បីជ្រើសម្ហូប</p>
         </div>
       )}

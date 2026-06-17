@@ -169,7 +169,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
 
   return (
     <div className="mx-auto min-h-screen bg-surface pb-[100px]">
-      <header className="sticky top-0 z-10 flex items-center gap-3 px-6 h-16 bg-surface/90 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex items-center gap-3 px-6 h-16 bg-white/90 backdrop-blur-md">
         <Link className="inline-flex items-center justify-center w-10 h-10 rounded-full text-onSurfaceVariant hover:text-onSurface hover:bg-surfaceContainerHigh transition-colors" href="/admin/recipes" aria-label="Back">
           <ArrowLeft size={20} />
         </Link>
@@ -177,7 +177,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
       </header>
       
       <form className="px-6 py-6" onSubmit={onSubmit}>
-        <div className="bg-surfaceContainerLowest p-6 lg:p-8 rounded-2xl shadow-sm border border-outlineVariant/30 flex flex-col gap-8">
+        <div className="bg-surfaceContainerLowest p-6 lg:p-8 rounded-2xl shadow-sm border border-outlineVariant flex flex-col gap-8">
           {/* Title — full width */}
           <div className="flex flex-col gap-2">
             <label htmlFor="recipe-title" className="admin-label">Recipe title</label>
@@ -213,7 +213,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
               <img
                 src={payload.thumbnail_url}
                 alt="Thumbnail preview"
-                className="w-full lg:max-w-md h-[200px] lg:h-[240px] object-cover rounded-xl mt-2 border border-outlineVariant/30"
+                className="w-full lg:max-w-md h-[200px] lg:h-[240px] object-cover rounded-xl mt-2 border border-outlineVariant"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";
                 }}
@@ -231,7 +231,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
                   onValueChange={(val) => setPayload({ ...payload, category_id: val })}
                   required
                 >
-                  <SelectTrigger className="w-full h-[56px] rounded-xl px-4 text-base border-outlineVariant/50 bg-surfaceContainerHighest hover:bg-surfaceContainerHighest/80 focus-visible:ring-primary">
+                  <SelectTrigger className="w-full h-[56px] rounded-xl px-4 text-base border-outlineVariant bg-surfaceContainerHighest hover:brightness-95 focus-visible:ring-primary">
                     <SelectValue placeholder="Select a category..." />
                   </SelectTrigger>
                   <SelectContent>
@@ -263,7 +263,7 @@ export const RecipeForm = ({ mode, recipeId }: RecipeFormProps) => {
                 onValueChange={(val) => setPayload({ ...payload, meal_slot: val as MealSlot })}
                 required
               >
-                <SelectTrigger className="w-full h-[56px] rounded-xl px-4 text-base border-outlineVariant/50 bg-surfaceContainerHighest hover:bg-surfaceContainerHighest/80 focus-visible:ring-primary">
+                <SelectTrigger className="w-full h-[56px] rounded-xl px-4 text-base border-outlineVariant bg-surfaceContainerHighest hover:brightness-95 focus-visible:ring-primary">
                   <SelectValue placeholder="Select a meal slot..." />
                 </SelectTrigger>
                 <SelectContent>

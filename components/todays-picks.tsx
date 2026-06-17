@@ -46,7 +46,7 @@ const TodaysPicks = ({
           <Link
             key={slot}
             href={`/recipe/${recipe.id}`}
-            className="group relative block overflow-hidden rounded-2xl border border-outlineVariant/20 bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]"
+            className="group relative block overflow-hidden rounded-2xl border border-outlineVariant bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]"
           >
             <div className="relative h-[180px] overflow-hidden bg-surfaceContainerLow sm:h-[200px]">
               <Image
@@ -60,7 +60,7 @@ const TodaysPicks = ({
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
               {/* Meal slot badge */}
-              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-bold text-primary shadow-sm backdrop-blur-sm">
+              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-primary shadow-sm backdrop-blur-sm">
                 {mealSlotCopy[slot].label}
               </div>
 

@@ -14,7 +14,7 @@ export const BottomNav = () => {
   const isCategory = pathname?.startsWith("/category");
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-surfaceContainerHighest border-t border-outlineVariant/30 flex items-center justify-around z-50 rounded-t-xl">
+    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-surfaceContainerHighest border-t border-outlineVariant flex items-center justify-around z-50 rounded-t-xl">
       <Link
         href="/"
         className="flex flex-col items-center justify-center min-w-20 h-full"
