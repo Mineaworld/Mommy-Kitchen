@@ -4,7 +4,8 @@ import AudioButton from "@/components/audio-button";
 import FavoritesSection from "@/components/favorites-section";
 import { UserIcon } from "@/components/icons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CategoryCard, RecipeCard } from "@/components/public-cards";
+import { CategoryCard } from "@/components/public-cards";
+import TodaysPicks from "@/components/todays-picks";
 import { CategoryRepository } from "@/lib/repositories/CategoryRepository";
 import { RecipeRepository } from "@/lib/repositories/RecipeRepository";
 import { appCopy } from "@/lib/khmer-labels";
@@ -28,7 +29,7 @@ const MealPicker = dynamic(() => import("@/components/meal-picker"), {
 
 const HomePage = async () => {
   const [categories, recipes] = await Promise.all([CategoryRepository.getAll(), RecipeRepository.getAll()]);
-  const categoryNames = new Map(categories.map((category) => [category.id, category.name_km]));
+
 
   return (
     <main className="mx-auto min-h-screen max-w-[800px] bg-surface pb-10">
@@ -51,27 +52,7 @@ const HomePage = async () => {
 
         <FavoritesSection categories={categories} recipes={recipes} />
 
-        <section className="grid gap-4" aria-labelledby="today-menu-heading">
-          <h2 id="today-menu-heading" className="m-0 text-2xl font-bold text-onSurface">
-            {appCopy.todayMenu}
-          </h2>
-          {recipes.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4">
-              {recipes.map((recipe, index) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  categoryName={categoryNames.get(recipe.category_id)}
-                  priority={index === 0}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl bg-surfaceContainer p-6 text-center">
-              <p className="m-0 text-lg font-bold text-onSurfaceVariant">{appCopy.noRecipes}</p>
-            </div>
-          )}
-        </section>
+        <TodaysPicks recipes={recipes} categories={categories} />
 
         <section id="categories" className="grid grid-cols-1 gap-4 scroll-mt-20" aria-labelledby="categories-heading">
           <h2 id="categories-heading" className="m-0 text-2xl font-bold text-onSurface">
