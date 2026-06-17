@@ -38,7 +38,6 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
   const [animPhase, setAnimPhase] = useState<AnimationPhase>("hidden");
   const spinTimeoutRef = useRef<number | null>(null);
   const voiceTimeoutRef = useRef<number | null>(null);
-  const hasMountedRef = useRef(false);
 
   const categoryNames = useMemo(() => {
     return categories.reduce<Record<string, string>>((accumulator, category) => {
@@ -105,8 +104,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
   // ---------------------------------------------------------------------------
 
   useEffect(() => {
-    if (hasMountedRef.current) return;
-    hasMountedRef.current = true;
+    if (selectedRecipe !== null) return;
 
     if (candidateRecipes.length === 0) {
       setAnnounceText("គ្មានមុខម្ហូប");
@@ -120,7 +118,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
 
     const pick = getDailyPick(recipes, selectedMealSlot);
     autoShowRecipe(pick);
-  }, [candidateRecipes, recipes, selectedMealSlot, autoShowRecipe]);
+  }, [candidateRecipes, recipes, selectedMealSlot, autoShowRecipe, selectedRecipe]);
 
   // ---------------------------------------------------------------------------
   // Meal slot selection

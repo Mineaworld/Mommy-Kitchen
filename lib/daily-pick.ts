@@ -142,7 +142,7 @@ const getRecentPickIds = (
 
   const recentIds = new Set<string>();
   for (const entry of pruned) {
-    if (entry.mealSlot === mealSlot) {
+    if (entry.mealSlot === mealSlot && entry.dateStr !== dateStr) {
       recentIds.add(entry.recipeId);
     }
   }
@@ -183,6 +183,17 @@ export const getDailyPick = (
   dateStr?: string
 ): Recipe | null => {
   const date = dateStr ?? getTodayDateStr();
+
+  // Has it already been picked today?
+  const log = readPickLog();
+  const todayPick = log.find(
+    (e) => e.mealSlot === mealSlot && e.dateStr === date
+  );
+  if (todayPick) {
+    const recipe = recipes.find((r) => r.id === todayPick.recipeId);
+    if (recipe) return recipe;
+  }
+
   const slotPool = filterByMealSlot(recipes, mealSlot);
 
   if (slotPool.length === 0) return null;
