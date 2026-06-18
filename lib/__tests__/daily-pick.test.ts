@@ -7,7 +7,6 @@ import {
   dailyShuffle,
   getTodayDateStr,
   getDailyPick,
-  clearPickHistory,
 } from "@/lib/daily-pick";
 import type { Recipe } from "@/lib/types";
 
@@ -282,8 +281,6 @@ describe("getDailyPick", () => {
 
   it("returns same pick for same date and slot", () => {
     const pick1 = getDailyPick(RECIPES, "lunch", "2026-06-17");
-    // Clear localStorage to reset state for second call (getDailyPick saves picks)
-    clearPickHistory();
     const pick2 = getDailyPick(RECIPES, "lunch", "2026-06-17");
     expect(pick1?.id).toBe(pick2?.id);
   });

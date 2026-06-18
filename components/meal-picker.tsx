@@ -98,6 +98,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
 
   const selectMealSlot = (mealSlot: PublicMealSlot) => {
     if (isSpinning) return;
+    if (voiceTimeoutRef.current) window.clearTimeout(voiceTimeoutRef.current);
     setSelectedMealSlot(mealSlot);
     speakKhmerLabel(mealSlotCopy[mealSlot].speech);
 
@@ -126,6 +127,7 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
 
   const handleSpin = () => {
     if (isSpinning) return;
+    if (voiceTimeoutRef.current) window.clearTimeout(voiceTimeoutRef.current);
 
     if (candidateRecipes.length === 0) {
       const text = "គ្មានមុខម្ហូប";

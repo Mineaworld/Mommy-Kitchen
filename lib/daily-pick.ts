@@ -70,12 +70,12 @@ const seededShuffle = <T>(items: T[], rng: () => number): T[] => {
 // Date helpers
 // ---------------------------------------------------------------------------
 
-/** Returns today's date as YYYY-MM-DD in local timezone. */
+/** Returns today's date as YYYY-MM-DD in UTC timezone. */
 export const getTodayDateStr = (): string => {
   const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
+  const year = d.getUTCFullYear();
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 };
 
@@ -130,8 +130,8 @@ const getRecentPickIds = (
   dateStr: string
 ): Set<string> => {
   const log = readPickLog();
-  const cutoffDate = new Date(dateStr);
-  cutoffDate.setDate(cutoffDate.getDate() - HISTORY_DAYS);
+  const cutoffDate = new Date(`${dateStr}T00:00:00Z`);
+  cutoffDate.setUTCDate(cutoffDate.getUTCDate() - HISTORY_DAYS);
   const cutoffStr = cutoffDate.toISOString().slice(0, 10);
 
   // Prune old entries while we're reading
