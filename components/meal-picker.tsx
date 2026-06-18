@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DinnerIcon, LunchIcon, PlayIcon, SparkIcon } from "@/components/icons";
+import { PlayIcon } from "@/components/icons";
 import { getDailyPick, filterByMealSlot } from "@/lib/daily-pick";
 import { mealSlotCopy } from "@/lib/khmer-labels";
 import type { Category, MealSlot, Recipe } from "@/lib/types";
@@ -18,26 +18,16 @@ type PublicMealSlot = Exclude<MealSlot, "breakfast">;
 
 const publicMealSlots: PublicMealSlot[] = ["lunch", "dinner", "any"];
 
-const mealSlotIcons: Record<PublicMealSlot, React.ReactNode> = {
-  lunch: <LunchIcon />,
-  dinner: <DinnerIcon />,
-  any: <SparkIcon />,
-};
-
-// ---------------------------------------------------------------------------
-// Animation states
-// ---------------------------------------------------------------------------
-
-type AnimationPhase = "hidden" | "entering" | "visible" | "bounce";
-
 const MealPicker = ({ categories, recipes }: MealPickerProps) => {
   const [selectedMealSlot, setSelectedMealSlot] = useState<PublicMealSlot>("lunch");
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [spinDisplayRecipe, setSpinDisplayRecipe] = useState<Recipe | null>(null);
+  const [spinDegrees, setSpinDegrees] = useState(0);
   const [announceText, setAnnounceText] = useState(mealSlotCopy.lunch.helper);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [animPhase, setAnimPhase] = useState<AnimationPhase>("hidden");
   const spinTimeoutRef = useRef<number | null>(null);
   const voiceTimeoutRef = useRef<number | null>(null);
+  const hasAutoShownRef = useRef(false);
 
   const categoryNames = useMemo(() => {
     return categories.reduce<Record<string, string>>((accumulator, category) => {
@@ -59,52 +49,34 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
   }, []);
 
   // ---------------------------------------------------------------------------
-  // Auto-show animation helper
+  // Auto-show today's pick ONCE on mount
   // ---------------------------------------------------------------------------
 
-  const autoShowRecipe = useCallback(
+  const revealPick = useCallback(
     (recipe: Recipe | null) => {
       if (!recipe) {
-        setSelectedRecipe(null);
-        setAnimPhase("hidden");
         if (candidateRecipes.length === 0) {
-          const text = "គ្មានមុខម្ហូប";
-          setAnnounceText(text);
+          setAnnounceText("គ្មានមុខម្ហូប");
         }
         return;
       }
 
-      // Start hidden, then animate in
-      setAnimPhase("hidden");
       setSelectedRecipe(recipe);
       setAnnounceText(recipe.title_km);
 
-      // Trigger enter animation on next frame
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setAnimPhase("entering");
-
-          // Transition to fully visible after animation
-          setTimeout(() => setAnimPhase("visible"), 400);
-
-          // Voice fires 300ms after card appears
-          if (voiceTimeoutRef.current) window.clearTimeout(voiceTimeoutRef.current);
-          voiceTimeoutRef.current = window.setTimeout(() => {
-            speakRecipe(recipe);
-            voiceTimeoutRef.current = null;
-          }, 300);
-        });
-      });
+      if (voiceTimeoutRef.current) window.clearTimeout(voiceTimeoutRef.current);
+      voiceTimeoutRef.current = window.setTimeout(() => {
+        speakRecipe(recipe);
+        voiceTimeoutRef.current = null;
+      }, 300);
     },
-    [candidateRecipes.length]
+    [candidateRecipes.length],
   );
 
-  // ---------------------------------------------------------------------------
-  // Auto-show on mount
-  // ---------------------------------------------------------------------------
-
+  // Auto-show on mount — only runs once
   useEffect(() => {
-    if (selectedRecipe !== null) return;
+    if (hasAutoShownRef.current) return;
+    hasAutoShownRef.current = true;
 
     if (candidateRecipes.length === 0) {
       setAnnounceText("គ្មានមុខម្ហូប");
@@ -112,13 +84,13 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
     }
 
     if (candidateRecipes.length === 1) {
-      autoShowRecipe(candidateRecipes[0]);
+      revealPick(candidateRecipes[0]);
       return;
     }
 
     const pick = getDailyPick(recipes, selectedMealSlot);
-    autoShowRecipe(pick);
-  }, [candidateRecipes, recipes, selectedMealSlot, autoShowRecipe, selectedRecipe]);
+    revealPick(pick);
+  }, [candidateRecipes, recipes, selectedMealSlot, revealPick]);
 
   // ---------------------------------------------------------------------------
   // Meal slot selection
@@ -133,22 +105,23 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
 
     if (slotRecipes.length === 0) {
       setSelectedRecipe(null);
-      setAnimPhase("hidden");
       setAnnounceText("គ្មានមុខម្ហូប");
       return;
     }
 
     if (slotRecipes.length === 1) {
-      autoShowRecipe(slotRecipes[0]);
+      revealPick(slotRecipes[0]);
       return;
     }
 
     const pick = getDailyPick(recipes, mealSlot);
-    autoShowRecipe(pick);
+    revealPick(pick);
   };
 
   // ---------------------------------------------------------------------------
-  // Spin animation (re-spin with Math.random)
+  // Spin — original master animation, total ≤ 3s guaranteed
+  //   - Cycles through recipes with ease-out curve
+  //   - Hard-capped at 3 000 ms via performance.now() guard
   // ---------------------------------------------------------------------------
 
   const handleSpin = () => {
@@ -161,159 +134,200 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
       return;
     }
 
-    // Single recipe — auto-select, no spin
     if (candidateRecipes.length === 1) {
-      autoShowRecipe(candidateRecipes[0]);
+      revealPick(candidateRecipes[0]);
       return;
     }
 
-    setIsSpinning(true);
-    setAnnounceText("កំពុងបង្វិល");
-    setAnimPhase("visible"); // Keep card area visible during spin
+    if (spinTimeoutRef.current) window.clearTimeout(spinTimeoutRef.current);
 
-    const cycles = Math.min(Math.max(candidateRecipes.length * 3, 12), 20);
+    const spins = 3 + Math.random() * 2; // Randomly 3 to 5 spins
+    setSpinDegrees((prev) => prev + spins * 360);
+
+    setIsSpinning(true);
+    setSelectedRecipe(null);
+    setAnnounceText("កំពុងបង្វិល");
+
+    // Pick a random winner upfront — prefer a different recipe when possible
+    const alternatives = candidateRecipes.filter(
+      (recipe) => recipe.id !== selectedRecipe?.id,
+    );
+    const winnerPool = alternatives.length > 0 ? alternatives : candidateRecipes;
+    const finalRecipe =
+      winnerPool[Math.floor(Math.random() * winnerPool.length)];
+
+    const cycles = Math.min(Math.max(candidateRecipes.length * 4, 15), 25);
+    const MAX_MS = 3_000;
+    const startedAt = performance.now();
+
+    // Shuffled reel so frames don't march in fixed array order
+    const reel = [...candidateRecipes].sort(() => Math.random() - 0.5);
 
     const step = (index: number) => {
-      const recipe = candidateRecipes[index % candidateRecipes.length];
-      setSelectedRecipe(recipe);
+      // Update only the display name during spin — not the image
+      const recipe =
+        index >= cycles ? finalRecipe : reel[index % reel.length];
+      setSpinDisplayRecipe(recipe);
 
-      if (index === cycles) {
-        // Final frame — bounce animation
-        setAnimPhase("bounce");
-        setAnnounceText(recipe.title_km);
-
-        // Reset bounce after 300ms
-        spinTimeoutRef.current = window.setTimeout(() => {
-          setAnimPhase("visible");
-          setIsSpinning(false);
-          speakRecipe(recipe);
-          spinTimeoutRef.current = null;
-        }, 300);
+      // Stop when we reached the final cycle OR hit the 3s safety cap
+      if (index >= cycles || performance.now() - startedAt >= MAX_MS) {
+        setIsSpinning(false);
+        setSelectedRecipe(finalRecipe);
+        setSpinDisplayRecipe(null);
+        setAnnounceText(finalRecipe.title_km);
+        speakRecipe(finalRecipe);
+        spinTimeoutRef.current = null;
         return;
       }
 
-      // Ease-out curve: starts at 60ms, ends at ~560ms
+      // Ease-out curve: starts very fast, dramatically slows toward the end
       const progress = index / cycles;
-      const delay = 60 + Math.pow(progress, 2.5) * 500;
+      const delay = 30 + Math.pow(progress, 3) * 400;
       spinTimeoutRef.current = window.setTimeout(() => step(index + 1), delay);
     };
 
-    // Pick a random starting index to avoid always starting at 0
-    const startIndex = Math.floor(Math.random() * candidateRecipes.length);
-    step(startIndex);
+    step(0);
   };
 
   // ---------------------------------------------------------------------------
-  // Animation styles
+  // Derived
   // ---------------------------------------------------------------------------
-
-  const getCardStyle = (): React.CSSProperties => {
-    switch (animPhase) {
-      case "hidden":
-        return {
-          opacity: 0,
-          transform: "scale(0.9)",
-          transition: "none",
-        };
-      case "entering":
-        return {
-          opacity: 1,
-          transform: "scale(1)",
-          transition: "opacity 400ms cubic-bezier(0.34, 1.56, 0.64, 1), transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-        };
-      case "bounce":
-        return {
-          opacity: 1,
-          transform: "scale(1.05)",
-          transition: "transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-        };
-      case "visible":
-      default:
-        return {
-          opacity: 1,
-          transform: "scale(1)",
-          transition: "transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 200ms ease",
-        };
-    }
-  };
 
   const spinDisabled = isSpinning || candidateRecipes.length <= 1;
 
+  // ---------------------------------------------------------------------------
+  // Render
+  // ---------------------------------------------------------------------------
+
   return (
-    <section className="grid gap-4 rounded-3xl border border-outlineVariant bg-surfaceContainer p-5 shadow-sm" aria-labelledby="meal-picker-heading">
+    <section
+      className="grid gap-6 rounded-[2rem] border-[3px] border-[#62280d] bg-[#fef4c5] p-6 shadow-[4px_4px_0_0_#62280d]"
+      aria-labelledby="meal-picker-heading"
+    >
+      {/* ── Heading ── */}
       <div className="grid gap-1 text-center">
-        <h2 id="meal-picker-heading" className="m-0 text-2xl font-bold text-onSurface">
-          ជ្រើសម្ហូបថ្ងៃនេះ
+        <h2
+          id="meal-picker-heading"
+          className="m-0 text-[32px] font-black text-[#e95e29] drop-shadow-[2px_2px_0_#62280d] leading-tight"
+        >
+          តោះ! ជ្រើសរើសអាហារថ្ងៃនេះ
         </h2>
-        <p className="m-0 text-base font-semibold text-onSurfaceVariant">{mealSlotCopy[selectedMealSlot].helper}</p>
+        <p className="m-0 text-base font-semibold text-onSurfaceVariant">
+          {isSpinning ? mealSlotCopy[selectedMealSlot].helper : announceText}
+        </p>
       </div>
 
+      {/* ── Screen-reader live region ── */}
+      <p className="sr-only" aria-live="assertive" role="status">
+        {announceText}
+      </p>
+
+      {/* ── Meal slot tabs ── */}
       <div className="grid grid-cols-3 gap-3" role="tablist" aria-label="Meal choices">
         {publicMealSlots.map((mealSlot) => {
-          const copy = mealSlotCopy[mealSlot];
           const isActive = selectedMealSlot === mealSlot;
+          const bgClass =
+            mealSlot === "lunch"
+              ? "bg-[#9bd7fa]"
+              : mealSlot === "dinner"
+                ? "bg-[#ffac8c]"
+                : "bg-[#abebb3]";
+          const emoji =
+            mealSlot === "lunch" ? "🍜" : mealSlot === "dinner" ? "🍛" : "🍢";
+          const label =
+            mealSlot === "lunch"
+              ? "អាហារថ្ងៃត្រង់"
+              : mealSlot === "dinner"
+                ? "អាហារពេលល្ងាច"
+                : "តាមចិត្ត";
           return (
             <button
               key={mealSlot}
               type="button"
-              className={`flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-2xl px-2 text-base font-bold transition-colors ${
+              className={`flex min-h-[100px] flex-col items-center justify-center gap-2 px-2 text-[15px] font-black transition-all ${
                 isActive
-                  ? "border-2 border-transparent bg-secondaryContainer text-onSecondaryContainer shadow-sm"
-                  : "border-2 border-outlineVariant bg-surfaceContainerLowest text-onSurfaceVariant"
+                  ? `${bgClass} rounded-[2rem] rounded-bl-md border-[3px] border-[#62280d] text-[#62280d] shadow-[4px_4px_0_0_#62280d] translate-y-1 scale-105`
+                  : "bg-white rounded-[2rem] border-[2px] border-[#62280d] text-[#8b4e2d] shadow-sm hover:scale-105"
               }`}
               aria-pressed={isActive}
               onClick={() => selectMealSlot(mealSlot)}
             >
-              {mealSlotIcons[mealSlot]}
-              <span>{copy.label}</span>
+              <span className="text-4xl">{emoji}</span>
+              <span>{label}</span>
             </button>
           );
         })}
       </div>
 
+      {/* ── Spin button ── */}
       <button
         type="button"
-        className="min-h-[64px] rounded-full bg-primary px-5 text-xl font-bold text-onPrimary shadow-[0_4px_12px_rgba(158,61,0,0.3)] transition-transform duration-200 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+        className="min-h-[72px] rounded-full bg-[#e95e29] border-[4px] border-[#62280d] px-6 text-2xl font-black text-white shadow-[4px_4px_0_0_#62280d] transition-all active:translate-y-1 active:shadow-none disabled:opacity-50 disabled:active:translate-y-0 disabled:active:shadow-[4px_4px_0_0_#62280d]"
         onClick={handleSpin}
         disabled={spinDisabled}
       >
-        {isSpinning ? "កំពុងបង្វិល" : mealSlotCopy[selectedMealSlot].spinLabel}
+        <span className="flex items-center justify-center gap-2">
+          {isSpinning ? "កំពុងបង្វិល..." : "តោះ! រកអីញ៉ាំ"}
+          {!isSpinning && (
+            <span className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#fef4c5] text-lg text-[#e95e29] border-2 border-[#62280d] pt-0.5">
+              &gt;
+            </span>
+          )}
+        </span>
       </button>
 
-      <p className="m-0 text-center text-base font-semibold text-onSurfaceVariant" aria-live="polite">
-        {announceText}
-      </p>
+      {/* ── Spinning name reel ── */}
+      {isSpinning && spinDisplayRecipe && (
+        <div className="rounded-[2rem] border-[4px] border-[#62280d] bg-white p-8 shadow-[4px_4px_0_0_#62280d] text-center">
+          <div className="animate-pulse">
+            <div className="mx-auto mb-4 h-[180px] w-full rounded-2xl bg-gradient-to-br from-[#faeab1] to-[#ffac8c] flex items-center justify-center overflow-hidden">
+              <span 
+                className="text-7xl inline-block transition-transform ease-out"
+                style={{ transform: `rotate(${spinDegrees}deg)`, transitionDuration: '3000ms' }}
+              >
+                🍳
+              </span>
+            </div>
+            <h3 className="m-0 text-2xl font-black text-[#62280d] transition-all duration-100">
+              {spinDisplayRecipe.title_km}
+            </h3>
+            <p className="m-0 mt-1 text-base font-semibold text-[#8b4e2d]">
+              {categoryNames[spinDisplayRecipe.category_id] ?? "ម្ហូប"}
+            </p>
+          </div>
+        </div>
+      )}
 
-      {selectedRecipe ? (
-        <article
-          className="overflow-hidden rounded-2xl bg-surfaceContainerLowest shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
-          style={getCardStyle()}
-        >
-          <div className="relative">
+      {/* ── Recipe card ── */}
+      {!isSpinning && selectedRecipe ? (
+        <article className="overflow-hidden rounded-[2rem] border-[4px] border-[#62280d] bg-white shadow-[4px_4px_0_0_#62280d]">
+          {/* Image */}
+          <div className="relative border-b-[4px] border-[#62280d]">
             <Image
+              key={selectedRecipe.id}
               src={selectedRecipe.thumbnail_url}
               alt={selectedRecipe.title_km}
               width={720}
               height={440}
-              sizes="(max-width: 800px) 100vw, 800px"
-              className={`block h-[230px] w-full object-cover transition-all duration-300 ${isSpinning ? "scale-95 blur-[3px] brightness-110" : ""}`}
+              className="block h-[240px] w-full object-cover"
+              priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
             <div className="absolute bottom-4 left-4 right-4">
-              <h3
-                className="m-0 line-clamp-2 text-3xl font-bold leading-tight text-white transition-opacity duration-200"
-                style={{ opacity: isSpinning ? 0.5 : 1 }}
-              >
+              <h3 className="m-0 line-clamp-2 text-3xl font-bold leading-tight text-white">
                 {selectedRecipe.title_km}
               </h3>
-              <p className="m-0 mt-1 text-base font-semibold text-white/85">{categoryNames[selectedRecipe.category_id] ?? "ម្ហូប"}</p>
+              <p className="m-0 mt-1 text-base font-semibold text-white/85">
+                {categoryNames[selectedRecipe.category_id] ?? "ម្ហូប"}
+              </p>
             </div>
           </div>
 
-          <div className="grid gap-3 p-4 sm:grid-cols-2">
+          {/* ── Action buttons ── */}
+          <div className="grid gap-3 p-5 sm:grid-cols-2 bg-[#fffdf5]">
             <button
               type="button"
-              className="flex min-h-[56px] items-center justify-center rounded-full border-2 border-primary bg-surfaceContainerLowest px-5 text-lg font-bold text-primary transition-transform active:scale-95"
+              className="flex min-h-[56px] items-center justify-center rounded-full border-[3px] border-[#62280d] bg-[#faeab1] px-5 text-[17px] font-black text-[#62280d] shadow-[2px_2px_0_0_#62280d] transition-all active:translate-y-1 active:shadow-none"
               onClick={handleSpin}
               disabled={spinDisabled}
             >
@@ -321,22 +335,20 @@ const MealPicker = ({ categories, recipes }: MealPickerProps) => {
             </button>
             <Link
               href={`/recipe/${selectedRecipe.id}`}
-              className="flex min-h-[56px] items-center justify-center gap-2 rounded-full bg-primary px-5 text-lg font-bold text-onPrimary shadow-sm transition-transform active:scale-95"
+              className="flex min-h-[56px] items-center justify-center gap-2 rounded-full border-[3px] border-[#62280d] bg-[#e95e29] px-5 text-[17px] font-black text-white shadow-[2px_2px_0_0_#62280d] transition-all active:translate-y-1 active:shadow-none"
             >
               <PlayIcon />
               មើលវិធីធ្វើ
             </Link>
           </div>
         </article>
-      ) : candidateRecipes.length === 0 ? (
+      ) : !isSpinning && candidateRecipes.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-outlineVariant bg-surfaceContainerLowest p-6 text-center">
-          <p className="m-0 text-base font-semibold text-onSurfaceVariant">គ្មានមុខម្ហូប</p>
+          <p className="m-0 text-base font-semibold text-onSurfaceVariant">
+            គ្មានមុខម្ហូប
+          </p>
         </div>
-      ) : (
-        <div className="rounded-2xl border-2 border-dashed border-outlineVariant bg-surfaceContainerLowest p-6 text-center">
-          <p className="m-0 text-base font-semibold text-onSurfaceVariant">ចុចបង្វិលដើម្បីជ្រើសម្ហូប</p>
-        </div>
-      )}
+      ) : null}
     </section>
   );
 };
