@@ -12,7 +12,7 @@ type RecipeCardProps = {
 
 export const RecipeCard = ({ recipe, categoryName, priority = false }: RecipeCardProps) => {
   return (
-    <article className="overflow-hidden rounded-2xl border border-outlineVariant/20 bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.1)]">
+    <article className="overflow-hidden rounded-2xl border border-outlineVariant bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.1)]">
       <Link href={`/recipe/${recipe.id}`} className="group block">
         <div className="relative h-[220px] overflow-hidden bg-surfaceContainerLow">
           <Image

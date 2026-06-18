@@ -43,7 +43,7 @@ function SelectValue({ ...props }: React.ComponentProps<typeof SelectPrimitive.V
 // Define size variants for SelectTrigger
 const selectTriggerVariants = cva(
   `
-    flex bg-surfaceContainerLowest w-full items-center justify-between outline-none border border-outlineVariant/50 shadow-sm transition-shadow 
+    flex bg-surfaceContainerLowest w-full items-center justify-between outline-none border border-outlineVariant shadow-sm transition-shadow 
     text-onSurface data-placeholder:text-onSurfaceVariant focus-visible:border-primary focus-visible:outline-none focus-visible:ring-[2px] 
     focus-visible:ring-primary/30 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 
     aria-invalid:border-error/60 aria-invalid:ring-error/10 dark:aria-invalid:border-error dark:aria-invalid:ring-error/20
@@ -120,7 +120,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-outlineVariant/30 bg-surfaceContainerLowest shadow-md text-onSurface data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
+          'relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-outlineVariant bg-surfaceContainerLowest shadow-md text-onSurface data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2',
           position === 'popper' &&
             'data-[side=bottom]:translate-y-1.5 data-[side=left]:-translate-x-1.5 data-[side=right]:translate-x-1.5 data-[side=top]:-translate-y-1.5',
           className,
@@ -213,7 +213,7 @@ function SelectSeparator({ className, ...props }: React.ComponentProps<typeof Se
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"
-      className={cn('-mx-1.5 my-1.5 h-px bg-outlineVariant/30', className)}
+      className={cn('-mx-1.5 my-1.5 h-px bg-outlineVariant', className)}
       {...props}
     />
   );

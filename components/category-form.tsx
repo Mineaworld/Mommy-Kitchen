@@ -146,7 +146,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
 
   return (
     <div className="mx-auto min-h-screen bg-surface pb-[100px]">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-3 bg-surface/90 px-6 backdrop-blur-md">
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-3 bg-white/90 px-6 backdrop-blur-md">
         <Link className="inline-flex h-10 w-10 items-center justify-center rounded-full text-onSurfaceVariant hover:text-onSurface hover:bg-surfaceContainerHigh transition-colors" href="/admin/categories" aria-label="Back">
           <ArrowLeft size={20} />
         </Link>
@@ -154,7 +154,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
       </header>
 
       <form className="px-6 py-6" onSubmit={onSubmit}>
-        <div className="flex flex-col gap-8 rounded-2xl border border-outlineVariant/30 bg-surfaceContainerLowest p-6 lg:p-8 shadow-sm">
+        <div className="flex flex-col gap-8 rounded-2xl border border-outlineVariant bg-surfaceContainerLowest p-6 lg:p-8 shadow-sm">
           {/* Name — full width */}
           <div className="flex flex-col gap-2">
             <label htmlFor="category-name" className="admin-label">Khmer name</label>
@@ -217,7 +217,7 @@ export const CategoryForm = ({ mode, categoryId }: CategoryFormProps) => {
             />
             {payload.cover_image_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={payload.cover_image_url} alt="Category preview" className="mt-2 h-[200px] lg:h-[240px] w-full lg:max-w-md rounded-xl border border-outlineVariant/30 object-cover" />
+              <img src={payload.cover_image_url} alt="Category preview" className="mt-2 h-[200px] lg:h-[240px] w-full lg:max-w-md rounded-xl border border-outlineVariant object-cover" />
             ) : null}
           </div>
 

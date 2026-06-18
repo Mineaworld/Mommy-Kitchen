@@ -1,34 +1,16 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import AudioButton from "@/components/audio-button";
 import FavoritesSection from "@/components/favorites-section";
+import MealPicker from "@/components/meal-picker-wrapper";
 import { UserIcon } from "@/components/icons";
-import { Skeleton } from "@/components/ui/skeleton";
-import { CategoryCard, RecipeCard } from "@/components/public-cards";
+import { CategoryCard } from "@/components/public-cards";
+import TodaysPicks from "@/components/todays-picks";
 import { CategoryRepository } from "@/lib/repositories/CategoryRepository";
 import { RecipeRepository } from "@/lib/repositories/RecipeRepository";
 import { appCopy } from "@/lib/khmer-labels";
 
-const MealPicker = dynamic(() => import("@/components/meal-picker"), {
-  loading: () => (
-    <div className="rounded-3xl border border-outlineVariant/20 bg-surfaceContainer p-5 shadow-sm">
-      <div className="grid gap-4">
-        <Skeleton className="h-8 w-48 mx-auto rounded-md" />
-        <Skeleton className="h-5 w-64 mx-auto rounded-md" />
-        <div className="grid grid-cols-3 gap-3">
-          <Skeleton className="h-[92px] rounded-2xl" />
-          <Skeleton className="h-[92px] rounded-2xl" />
-          <Skeleton className="h-[92px] rounded-2xl" />
-        </div>
-        <Skeleton className="h-[64px] rounded-full" />
-      </div>
-    </div>
-  ),
-});
-
 const HomePage = async () => {
   const [categories, recipes] = await Promise.all([CategoryRepository.getAll(), RecipeRepository.getAll()]);
-  const categoryNames = new Map(categories.map((category) => [category.id, category.name_km]));
 
   return (
     <main className="mx-auto min-h-screen max-w-[800px] bg-surface pb-10">
@@ -51,27 +33,7 @@ const HomePage = async () => {
 
         <FavoritesSection categories={categories} recipes={recipes} />
 
-        <section className="grid gap-4" aria-labelledby="today-menu-heading">
-          <h2 id="today-menu-heading" className="m-0 text-2xl font-bold text-onSurface">
-            {appCopy.todayMenu}
-          </h2>
-          {recipes.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4">
-              {recipes.map((recipe, index) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  categoryName={categoryNames.get(recipe.category_id)}
-                  priority={index === 0}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl bg-surfaceContainer p-6 text-center">
-              <p className="m-0 text-lg font-bold text-onSurfaceVariant">{appCopy.noRecipes}</p>
-            </div>
-          )}
-        </section>
+        <TodaysPicks recipes={recipes} categories={categories} />
 
         <section id="categories" className="grid grid-cols-1 gap-4 scroll-mt-20" aria-labelledby="categories-heading">
           <h2 id="categories-heading" className="m-0 text-2xl font-bold text-onSurface">

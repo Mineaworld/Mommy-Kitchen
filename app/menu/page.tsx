@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SpeakerIcon } from "@/components/icons";
 import { speakRecipe } from "@/lib/voice/speak";
+import { dailyShuffle } from "@/lib/daily-pick";
 import type { Category, MealSlot, Recipe } from "@/lib/types";
 
 type TabValue = "all" | MealSlot;
@@ -24,28 +25,6 @@ const TABS: Tab[] = [
   { label: "អាហារថ្ងៃត្រង់", value: "lunch", icon: <Sun className="w-4 h-4" /> },
   { label: "អាហារពេលល្ងាច", value: "dinner", icon: <Moon className="w-4 h-4" /> },
 ];
-
-/** Deterministic PRNG seeded by an integer. */
-const seededRandom = (seed: number) => {
-  let s = seed | 0;
-  return () => {
-    s = (s * 1664525 + 1013904223) | 0;
-    return (s >>> 0) / 4294967296;
-  };
-};
-
-/** Shuffle array items using a date-based seed — same date = same order. */
-const dailyShuffle = <T,>(items: T[]): T[] => {
-  const d = new Date();
-  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  const rng = seededRandom(seed);
-  const arr = items.slice();
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-};
 
 const filterRecipes = (recipes: Recipe[], tab: TabValue): Recipe[] => {
   if (tab === "all") return recipes;
@@ -111,7 +90,7 @@ const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {categoryName && (
-          <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-primary shadow-sm border border-outlineVariant/10">
+          <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-onSurface shadow-sm border border-outlineVariant/10">
             {categoryName}
           </div>
         )}
