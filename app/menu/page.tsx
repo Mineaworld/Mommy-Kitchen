@@ -90,7 +90,7 @@ const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {categoryName && (
-          <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-primary shadow-sm border border-outlineVariant/10">
+          <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-onSurface shadow-sm border border-outlineVariant/10">
             {categoryName}
           </div>
         )}

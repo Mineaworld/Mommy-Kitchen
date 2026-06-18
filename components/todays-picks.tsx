@@ -60,7 +60,7 @@ const TodaysPicks = ({
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
               {/* Meal slot badge */}
-              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-primary shadow-sm backdrop-blur-sm">
+              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-onSurface shadow-sm backdrop-blur-sm">
                 {mealSlotCopy[slot].label}
               </div>
 
