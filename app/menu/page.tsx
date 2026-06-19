@@ -6,8 +6,7 @@ import Link from "next/link";
 import { List, Clock, Moon, Sun, Sunrise, Utensils } from "lucide-react";
 import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SpeakerIcon } from "@/components/icons";
-import { speakRecipe } from "@/lib/voice/speak";
+import AudioButton from "@/components/audio-button";
 import { dailyShuffle } from "@/lib/daily-pick";
 import type { Category, MealSlot, Recipe } from "@/lib/types";
 
@@ -113,14 +112,11 @@ const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
             </span>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={() => speakRecipe(recipe)}
-          className="shrink-0 flex items-center justify-center w-11 h-11 rounded-full bg-surfaceContainer text-primary hover:bg-primary hover:text-onPrimary shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
-          aria-label={`ស្តាប់ ${recipe.title_km}`}
-        >
-          <SpeakerIcon className="w-5 h-5" />
-        </button>
+        <AudioButton
+          label={`ស្តាប់ ${recipe.title_km}`}
+          text={recipe.title_km}
+          className="shrink-0 bg-surfaceContainer hover:bg-primary hover:text-onPrimary shadow-sm transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 !min-h-11 !min-w-11 !w-11 !h-11"
+        />
       </div>
     </div>
   </article>

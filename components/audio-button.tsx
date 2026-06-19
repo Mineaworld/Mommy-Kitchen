@@ -15,7 +15,11 @@ const AudioButton = ({ label, text, className = "" }: AudioButtonProps) => {
       type="button"
       className={`inline-flex min-h-[48px] min-w-[48px] items-center justify-center rounded-full text-primary transition-colors hover:bg-surfaceContainerHigh ${className}`}
       aria-label={label}
-      onClick={() => speakKhmerLabel(text)}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        speakKhmerLabel(text);
+      }}
     >
       <SpeakerIcon />
     </button>
