@@ -46,6 +46,7 @@ docs/*.md
 !docs/superpowers/
 !docs/superpowers/specs/
 !docs/superpowers/specs/*.md
+docs/superpowers/plans/
 
 # Windows reserved-name artifact
 nul
