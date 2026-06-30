@@ -1,5 +1,10 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import ImageLightbox, { type ImageRef } from "@/components/image-lightbox";
+import ImageLightboxTrigger from "@/components/image-lightbox-trigger";
 import { getServerDailyPicks } from "@/lib/daily-pick";
 import { mealSlotCopy } from "@/lib/khmer-labels";
 import type { Category, Recipe } from "@/lib/types";
@@ -17,10 +22,25 @@ const TodaysPicks = ({
   recipes,
   categories,
 }: TodaysPicksProps) => {
-  const picks = getServerDailyPicks(recipes);
-  const categoryNames = new Map(
-    categories.map((c) => [c.id, c.name_km])
+  const picks = useMemo(() => getServerDailyPicks(recipes), [recipes]);
+  const categoryNames = useMemo(
+    () => new Map(categories.map((c) => [c.id, c.name_km])),
+    [categories],
   );
+
+  const [selectedImage, setSelectedImage] = useState<ImageRef | null>(null);
+
+  const handleViewImage = (recipe: Recipe) => {
+    setSelectedImage({
+      url: recipe.thumbnail_url,
+      alt: recipe.title_km,
+      title: recipe.title_km,
+    });
+  };
+
+  const handleLightboxOpenChange = (open: boolean) => {
+    if (!open) setSelectedImage(null);
+  };
 
   const pickEntries = SLOTS.map((slot) => ({
     slot,
@@ -60,9 +80,11 @@ const TodaysPicks = ({
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
               {/* Meal slot badge */}
-              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-onSurface shadow-sm backdrop-blur-sm">
+              <div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-bold text-onPrimary shadow-md border border-white/20">
                 {mealSlotCopy[slot].label}
               </div>
+
+              <ImageLightboxTrigger onActivate={() => handleViewImage(recipe)} />
 
               {/* Recipe title */}
               <div className="absolute bottom-3 left-3 right-3">
@@ -79,6 +101,11 @@ const TodaysPicks = ({
           </Link>
         ))}
       </div>
+      <ImageLightbox
+        image={selectedImage}
+        open={selectedImage !== null}
+        onOpenChange={handleLightboxOpenChange}
+      />
     </section>
   );
 };
