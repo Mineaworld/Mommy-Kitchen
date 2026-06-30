@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import ImageLightbox, { type ImageRef } from "@/components/image-lightbox";
 import { RecipeCard } from "@/components/public-cards";
 import { appCopy } from "@/lib/khmer-labels";
 import type { Category, Recipe } from "@/lib/types";
@@ -23,6 +24,7 @@ type FavoritesSectionProps = {
 
 const FavoritesSection = ({ recipes, categories }: FavoritesSectionProps) => {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [selectedImage, setSelectedImage] = useState<ImageRef | null>(null);
 
   useEffect(() => {
     setFavoriteIds(readFavoriteIds());
@@ -44,6 +46,18 @@ const FavoritesSection = ({ recipes, categories }: FavoritesSectionProps) => {
     .map((id) => recipes.find((recipe) => recipe.id === id))
     .filter((recipe): recipe is Recipe => Boolean(recipe));
 
+  const handleViewImage = (recipe: Recipe) => {
+    setSelectedImage({
+      url: recipe.thumbnail_url,
+      alt: recipe.title_km,
+      title: recipe.title_km,
+    });
+  };
+
+  const handleLightboxOpenChange = (open: boolean) => {
+    if (!open) setSelectedImage(null);
+  };
+
   if (favoriteRecipes.length === 0) {
     return null;
   }
@@ -59,9 +73,15 @@ const FavoritesSection = ({ recipes, categories }: FavoritesSectionProps) => {
             key={recipe.id}
             recipe={recipe}
             categoryName={categoryNames.get(recipe.category_id)}
+            onViewImage={() => handleViewImage(recipe)}
           />
         ))}
       </div>
+      <ImageLightbox
+        image={selectedImage}
+        open={selectedImage !== null}
+        onOpenChange={handleLightboxOpenChange}
+      />
     </section>
   );
 };
