@@ -34,11 +34,11 @@ export const RecipeCard = ({ recipe, categoryName, priority = false, onViewImage
               <p className="m-0 mt-1 text-base font-semibold text-white/85">{categoryName}</p>
             ) : null}
           </div>
-          {onViewImage ? (
-            <ImageLightboxTrigger onActivate={onViewImage} className="left-2 right-auto" />
-          ) : null}
         </div>
       </Link>
+      {onViewImage ? (
+        <ImageLightboxTrigger onActivate={onViewImage} className="left-3 right-auto top-3" />
+      ) : null}
       <div className="absolute right-3 top-3 z-10">
         <AudioButton
           label={`ស្តាប់ ${recipe.title_km}`}

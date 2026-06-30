@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
@@ -17,7 +18,13 @@ type ImageLightboxProps = {
 };
 
 const ImageLightbox = ({ image, open, onOpenChange }: ImageLightboxProps) => {
-  if (!image) return null;
+  const [displayImage, setDisplayImage] = useState<ImageRef | null>(image);
+
+  useEffect(() => {
+    if (image) setDisplayImage(image);
+  }, [image]);
+
+  if (!displayImage) return null;
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -30,15 +37,15 @@ const ImageLightbox = ({ image, open, onOpenChange }: ImageLightboxProps) => {
           onClick={() => onOpenChange(false)}
           className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 outline-none duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-90 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-90 data-[state=closed]:duration-200"
         >
-          {image.title ? (
+          {displayImage.title ? (
             <Dialog.Title
               onClick={(e) => e.stopPropagation()}
               className="absolute left-6 top-6 z-10 max-w-[70vw] truncate rounded-full bg-black/70 px-5 py-2 text-base font-bold text-white shadow-xl backdrop-blur-md border border-white/15 animate-in fade-in slide-in-from-top-4 duration-500"
             >
-              {image.title}
+              {displayImage.title}
             </Dialog.Title>
           ) : (
-            <Dialog.Title className="sr-only">{image.alt}</Dialog.Title>
+            <Dialog.Title className="sr-only">{displayImage.alt}</Dialog.Title>
           )}
 
           <div
@@ -46,8 +53,8 @@ const ImageLightbox = ({ image, open, onOpenChange }: ImageLightboxProps) => {
             className="relative flex h-full w-full max-h-[85vh] max-w-[90vw] items-center justify-center select-none"
           >
             <Image
-              src={image.url}
-              alt={image.alt}
+              src={displayImage.url}
+              alt={displayImage.alt}
               fill
               sizes="100vw"
               priority

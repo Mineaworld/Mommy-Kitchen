@@ -77,7 +77,7 @@ type MenuCardProps = {
 };
 
 const MenuCard = ({ recipe, categoryName, onViewImage }: MenuCardProps) => (
-  <article className="group rounded-2xl bg-surfaceContainerLowest shadow-sm hover:shadow-md border border-outlineVariant/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]">
+  <article className="group relative rounded-2xl bg-surfaceContainerLowest shadow-sm hover:shadow-md border border-outlineVariant/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]">
     <Link
       href={`/recipe/${recipe.id}`}
       className="block"
@@ -96,9 +96,6 @@ const MenuCard = ({ recipe, categoryName, onViewImage }: MenuCardProps) => (
             {categoryName}
           </div>
         )}
-        {onViewImage ? (
-          <ImageLightboxTrigger onActivate={onViewImage} />
-        ) : null}
       </div>
 
       <div className="p-5 pb-0">
@@ -107,6 +104,9 @@ const MenuCard = ({ recipe, categoryName, onViewImage }: MenuCardProps) => (
         </h3>
       </div>
     </Link>
+    {onViewImage ? (
+      <ImageLightboxTrigger onActivate={onViewImage} />
+    ) : null}
 
     <div className="px-5 pb-5 pt-3">
       <div className="flex items-center justify-between">

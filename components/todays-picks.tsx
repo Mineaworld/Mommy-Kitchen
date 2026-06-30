@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ImageLightbox, { type ImageRef } from "@/components/image-lightbox";
 import ImageLightboxTrigger from "@/components/image-lightbox-trigger";
-import { getServerDailyPicks } from "@/lib/daily-pick";
+import { getServerDailyPicks, getTodayDateStr } from "@/lib/daily-pick";
 import { mealSlotCopy } from "@/lib/khmer-labels";
 import type { Category, Recipe } from "@/lib/types";
 
@@ -22,7 +22,12 @@ const TodaysPicks = ({
   recipes,
   categories,
 }: TodaysPicksProps) => {
-  const picks = useMemo(() => getServerDailyPicks(recipes), [recipes]);
+  const [dateStr, setDateStr] = useState("");
+  useEffect(() => {
+    setDateStr(getTodayDateStr());
+  }, []);
+
+  const picks = useMemo(() => getServerDailyPicks(recipes, dateStr || undefined), [recipes, dateStr]);
   const categoryNames = useMemo(
     () => new Map(categories.map((c) => [c.id, c.name_km])),
     [categories],
@@ -63,42 +68,45 @@ const TodaysPicks = ({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {pickEntries.map(({ slot, recipe }) => (
-          <Link
+          <div
             key={slot}
-            href={`/recipe/${recipe.id}`}
-            className="group relative block overflow-hidden rounded-2xl border border-outlineVariant bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]"
+            className="group relative block overflow-hidden rounded-2xl border border-outlineVariant bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.08)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
           >
-            <div className="relative h-[180px] overflow-hidden bg-surfaceContainerLow sm:h-[200px]">
-              <Image
-                src={recipe.thumbnail_url}
-                alt={recipe.title_km}
-                width={400}
-                height={240}
-                sizes="(max-width: 640px) 100vw, 33vw"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+            <Link
+              href={`/recipe/${recipe.id}`}
+              className="block"
+            >
+              <div className="relative h-[180px] overflow-hidden bg-surfaceContainerLow sm:h-[200px]">
+                <Image
+                  src={recipe.thumbnail_url}
+                  alt={recipe.title_km}
+                  width={400}
+                  height={240}
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-              {/* Meal slot badge */}
-              <div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-bold text-onPrimary shadow-md border border-white/20">
-                {mealSlotCopy[slot].label}
+                {/* Meal slot badge */}
+                <div className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-sm font-bold text-onPrimary shadow-md border border-white/20">
+                  {mealSlotCopy[slot].label}
+                </div>
+
+                {/* Recipe title */}
+                <div className="absolute bottom-3 left-3 right-3">
+                  <h3 className="m-0 line-clamp-2 text-xl font-bold leading-snug text-white sm:text-lg">
+                    {recipe.title_km}
+                  </h3>
+                  {categoryNames.get(recipe.category_id) && (
+                    <p className="m-0 mt-0.5 text-sm font-semibold text-white/80">
+                      {categoryNames.get(recipe.category_id)}
+                    </p>
+                  )}
+                </div>
               </div>
-
-              <ImageLightboxTrigger onActivate={() => handleViewImage(recipe)} />
-
-              {/* Recipe title */}
-              <div className="absolute bottom-3 left-3 right-3">
-                <h3 className="m-0 line-clamp-2 text-xl font-bold leading-snug text-white sm:text-lg">
-                  {recipe.title_km}
-                </h3>
-                {categoryNames.get(recipe.category_id) && (
-                  <p className="m-0 mt-0.5 text-sm font-semibold text-white/80">
-                    {categoryNames.get(recipe.category_id)}
-                  </p>
-                )}
-              </div>
-            </div>
-          </Link>
+            </Link>
+            <ImageLightboxTrigger onActivate={() => handleViewImage(recipe)} />
+          </div>
         ))}
       </div>
       <ImageLightbox
