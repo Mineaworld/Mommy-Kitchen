@@ -42,6 +42,16 @@ mom-app-mobile-home.png
 
 # Planning docs
 docs/*.md
+# ... except feature design specs in docs/superpowers/specs/
+!docs/superpowers/
+!docs/superpowers/specs/
+!docs/superpowers/specs/*.md
+docs/superpowers/specs/*
 
 # Windows reserved-name artifact
 nul
+
+# Local data / AI prompt scratch files (not for the repo)
+image_prompts.txt
+new-cambodian-recipes.csv
+sample-recipes.csv
