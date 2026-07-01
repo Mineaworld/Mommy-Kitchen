@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { List, Clock, Moon, Sun, Sunrise, Utensils } from "lucide-react";
 import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import AudioButton from "@/components/audio-button";
+import ImageLightbox, { type ImageRef } from "@/components/image-lightbox";
+import ImageLightboxTrigger from "@/components/image-lightbox-trigger";
 import { dailyShuffle } from "@/lib/daily-pick";
 import type { Category, MealSlot, Recipe } from "@/lib/types";
 
@@ -71,10 +73,11 @@ const ErrorState = ({ message }: { message: string }) => (
 type MenuCardProps = {
   recipe: Recipe;
   categoryName?: string;
+  onViewImage?: () => void;
 };
 
-const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
-  <article className="group rounded-2xl bg-surfaceContainerLowest shadow-sm hover:shadow-md border border-outlineVariant/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]">
+const MenuCard = ({ recipe, categoryName, onViewImage }: MenuCardProps) => (
+  <article className="group relative rounded-2xl bg-surfaceContainerLowest shadow-sm hover:shadow-md border border-outlineVariant/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 active:scale-[0.98]">
     <Link
       href={`/recipe/${recipe.id}`}
       className="block"
@@ -89,7 +92,7 @@ const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         {categoryName && (
-          <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-bold text-onSurface shadow-sm border border-outlineVariant/10">
+          <div className="absolute top-3.5 left-3.5 z-10 bg-primary px-3.5 py-1.5 rounded-full text-sm font-bold text-onPrimary shadow-md border border-white/20">
             {categoryName}
           </div>
         )}
@@ -101,6 +104,9 @@ const MenuCard = ({ recipe, categoryName }: MenuCardProps) => (
         </h3>
       </div>
     </Link>
+    {onViewImage ? (
+      <ImageLightboxTrigger onActivate={onViewImage} />
+    ) : null}
 
     <div className="px-5 pb-5 pt-3">
       <div className="flex items-center justify-between">
@@ -170,8 +176,23 @@ const MenuPage = () => {
 
   const totallyEmpty = !loading && recipes.length === 0;
 
+  const [selectedImage, setSelectedImage] = useState<ImageRef | null>(null);
+
+  const handleViewImage = useCallback((recipe: Recipe) => {
+    setSelectedImage({
+      url: recipe.thumbnail_url,
+      alt: recipe.title_km,
+      title: recipe.title_km,
+    });
+  }, []);
+
+  const handleLightboxOpenChange = useCallback((open: boolean) => {
+    if (!open) setSelectedImage(null);
+  }, []);
+
   return (
-    <main className="mx-auto min-h-screen max-w-[800px] bg-surface pb-[100px]">
+    <>
+      <main className="mx-auto min-h-screen max-w-[800px] bg-surface pb-[100px]">
       <header className="sticky top-0 z-20 flex h-16 items-center justify-between bg-surface/80 px-5 backdrop-blur-xl">
         <h1 className="text-2xl font-extrabold text-primary m-0 tracking-tight">មីនុយ</h1>
       </header>
@@ -216,12 +237,19 @@ const MenuPage = () => {
                 key={recipe.id}
                 recipe={recipe}
                 categoryName={categoryNames.get(recipe.category_id)}
+                onViewImage={() => handleViewImage(recipe)}
               />
             ))}
           </div>
         )}
       </div>
-    </main>
+      </main>
+      <ImageLightbox
+        image={selectedImage}
+        open={selectedImage !== null}
+        onOpenChange={handleLightboxOpenChange}
+      />
+    </>
   );
 };
 

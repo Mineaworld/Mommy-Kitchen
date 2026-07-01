@@ -1,7 +1,7 @@
 import Link from "next/link";
 import AudioButton from "@/components/audio-button";
 import { BackIcon } from "@/components/icons";
-import { RecipeCard } from "@/components/public-cards";
+import RecipeCardWithLightbox from "@/components/recipe-card-with-lightbox";
 import TrackCategoryOpen from "@/components/track-category-open";
 import { CategoryRepository } from "@/lib/repositories/CategoryRepository";
 import { RecipeRepository } from "@/lib/repositories/RecipeRepository";
@@ -49,7 +49,7 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
         {recipes.length > 0 ? (
           <section className="grid grid-cols-1 gap-4" aria-label={category.name_km}>
             {recipes.map((recipe, index) => (
-              <RecipeCard
+              <RecipeCardWithLightbox
                 key={recipe.id}
                 recipe={recipe}
                 categoryName={category.name_km}

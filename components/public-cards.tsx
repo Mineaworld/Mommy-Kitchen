@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { PlayIcon } from "@/components/icons";
 import AudioButton from "@/components/audio-button";
+import ImageLightboxTrigger from "@/components/image-lightbox-trigger";
 import { appCopy } from "@/lib/khmer-labels";
 import type { Category, Recipe } from "@/lib/types";
 
@@ -9,9 +10,10 @@ type RecipeCardProps = {
   recipe: Recipe;
   categoryName?: string;
   priority?: boolean;
+  onViewImage?: () => void;
 };
 
-export const RecipeCard = ({ recipe, categoryName, priority = false }: RecipeCardProps) => {
+export const RecipeCard = ({ recipe, categoryName, priority = false, onViewImage }: RecipeCardProps) => {
   return (
     <article className="relative overflow-hidden rounded-2xl border border-outlineVariant bg-surfaceContainerLowest shadow-[0_4px_14px_rgba(0,0,0,0.1)]">
       <Link href={`/recipe/${recipe.id}`} className="group block">
@@ -34,6 +36,9 @@ export const RecipeCard = ({ recipe, categoryName, priority = false }: RecipeCar
           </div>
         </div>
       </Link>
+      {onViewImage ? (
+        <ImageLightboxTrigger onActivate={onViewImage} className="left-3 right-auto top-3" />
+      ) : null}
       <div className="absolute right-3 top-3 z-10">
         <AudioButton
           label={`ស្តាប់ ${recipe.title_km}`}

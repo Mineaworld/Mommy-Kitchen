@@ -52,3 +52,12 @@ export const SparkIcon = ({ className = "w-8 h-8" }: IconProps) => (
     <path d="M12 2l2.7 6.6 7.1.6-5.4 4.6 1.6 6.9-6-3.7-6 3.7 1.6-6.9-5.4-4.6 7.1-.6L12 2z" />
   </svg>
 );
+
+export const ExpandIcon = ({ className = "w-6 h-6" }: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <path d="M3 8V5a2 2 0 0 1 2-2h3" />
+    <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+    <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+    <path d="M21 16v3a2 2 0 0 1-2 2h-3" />
+  </svg>
+);
